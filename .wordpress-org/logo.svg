@@ -1,27 +1,26 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-	<defs>
-		<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-			<stop offset="0" stop-color="#66bb6a"/><stop offset="0.55" stop-color="#4caf50"/><stop offset="1" stop-color="#2e7d32"/>
-		</linearGradient>
-		<linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
-			<stop offset="0" stop-color="#ffffff" stop-opacity="0.30"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/>
-		</linearGradient>
-	</defs>
-	<rect width="256" height="256" rx="56" fill="url(#bg)"/>
-	<rect width="256" height="140" rx="56" fill="url(#shine)"/>
-	<path d="M100 84 v-14 a28 28 0 0 1 56 0 v14" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round" opacity="0.95"/>
-	<rect x="70" y="82" width="116" height="112" rx="24" fill="none" stroke="#ffffff" stroke-width="11" opacity="0.95"/>
-	<rect x="90" y="128" width="38" height="38" rx="8" fill="#e8f5e9" transform="rotate(-8 109 147)"/>
-	<rect x="128" y="120" width="40" height="40" rx="8" fill="#ffffff"/>
-	<rect x="112" y="92" width="34" height="34" rx="7" fill="#c8e6c9" transform="rotate(10 129 109)"/>
-	<g transform="translate(196 74) rotate(12)">
-		<rect x="-26" y="-19" width="52" height="38" rx="10" fill="#ffffff"/>
-		<circle cx="-13" cy="0" r="3.6" fill="#2e7d32"/><circle cx="13" cy="0" r="3.6" fill="#2e7d32"/>
-		<line x1="-11" y1="9" x2="11" y2="-9" stroke="#2e7d32" stroke-width="3.6" stroke-linecap="round"/>
-	</g>
-	<g transform="translate(62 182)">
-		<circle r="19" fill="#ffffff"/>
-		<path d="M-7.5 1 l5 6 l10 -12" fill="none" stroke="#2e7d32" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/>
-	</g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 220" width="760" height="220">
+  <defs>
+    <linearGradient id="bag" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#34c77b"/>
+      <stop offset="1" stop-color="#128046"/>
+    </linearGradient>
+    <linearGradient id="sq" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#34c77b"/>
+      <stop offset="1" stop-color="#128046"/>
+    </linearGradient>
+  </defs>
+  <!-- icon: rounded square with bag -->
+  <rect x="10" y="10" width="200" height="200" rx="46" fill="url(#sq)"/>
+  <path d="M110 52 a30 30 0 0 1 30 30 v6 h-13 v-6 a17 17 0 0 0 -34 0 v6 h-13 v-6 a30 30 0 0 1 30 -30 z" fill="#ffffff"/>
+  <rect x="66" y="84" width="88" height="80" rx="14" fill="#ffffff"/>
+  <rect x="78" y="104" width="26" height="26" rx="7" fill="#f59e0b"/>
+  <rect x="97" y="116" width="26" height="26" rx="7" fill="#8b5cf6"/>
+  <rect x="81" y="126" width="26" height="26" rx="7" fill="#4ade80"/>
+  <circle cx="70" cy="168" r="17" fill="#22c55e"/>
+  <path d="M63 168 l5 5 l10 -11" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="138" y="60" width="36" height="30" rx="9" fill="#22c55e"/>
+  <text x="156" y="81" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="20" fill="#ffffff" text-anchor="middle">%</text>
+  <!-- wordmark -->
+  <text x="248" y="122" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="88" fill="#ffffff">PickPack</text>
+  <text x="252" y="170" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="40" fill="#86efac">for WooCommerce</text>
 </svg>

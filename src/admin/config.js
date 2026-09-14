@@ -2,7 +2,7 @@
  * Access to the localized admin configuration.
  */
 
-const config = window.bundlecraftAdmin || {};
+const config = window.pickpackAdmin || {};
 
 /**
  * Returns a localized string, falling back to the English default.

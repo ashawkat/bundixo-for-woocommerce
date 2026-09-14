@@ -2,10 +2,10 @@
 /**
  * Installation and database schema handling.
  *
- * @package BundleCraft
+ * @package PickPack
  */
 
-namespace BundleCraft;
+namespace PickPack;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -20,7 +20,7 @@ class Install {
 	/**
 	 * Option key holding the legacy-migration flag.
 	 */
-	const LEGACY_MIGRATED_OPTION = 'bundlecraft_legacy_migrated';
+	const LEGACY_MIGRATED_OPTION = 'pickpack_legacy_migrated';
 
 	/**
 	 * Runs on plugin activation.
@@ -31,9 +31,10 @@ class Install {
 		global $wpdb;
 
 		try {
+			self::rename_pre_rebrand_table();
 			self::run_db_delta();
 
-			update_option( 'bundlecraft_db_version', BUNDLECRAFT_DB_VERSION, false );
+			update_option( 'pickpack_db_version', PICKPACK_DB_VERSION, false );
 
 			if ( ! get_option( self::LEGACY_MIGRATED_OPTION, false ) ) {
 				self::migrate_legacy();
@@ -56,15 +57,16 @@ class Install {
 			return;
 		}
 
-		$db_version = get_option( 'bundlecraft_db_version', '0' );
+		$db_version = get_option( 'pickpack_db_version', '0' );
 
-		if ( version_compare( (string) $db_version, BUNDLECRAFT_DB_VERSION, '>=' ) ) {
+		if ( version_compare( (string) $db_version, PICKPACK_DB_VERSION, '>=' ) ) {
 			return;
 		}
 
+		self::rename_pre_rebrand_table();
 		self::run_db_delta();
-		update_option( 'bundlecraft_db_version', BUNDLECRAFT_DB_VERSION, false );
-		self::log( 'Database schema updated to version ' . BUNDLECRAFT_DB_VERSION );
+		update_option( 'pickpack_db_version', PICKPACK_DB_VERSION, false );
+		self::log( 'Database schema updated to version ' . PICKPACK_DB_VERSION );
 	}
 
 	/**
@@ -76,6 +78,34 @@ class Install {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 		dbDelta( self::get_schema_sql() );
+	}
+
+	/**
+	 * Renames the bundles table from the pre-rebrand "bundlecraft_bundles"
+	 * name so bundles created before the plugin was renamed to PickPack
+	 * are carried over instead of being orphaned.
+	 *
+	 * @return void
+	 */
+	private static function rename_pre_rebrand_table() {
+		global $wpdb;
+
+		$old = preg_replace( '/[^A-Za-z0-9_]/', '', $wpdb->prefix . 'bundlecraft_bundles' );
+		$new = self::table_name();
+
+		if ( ! self::table_exists( $old ) || self::table_exists( $new ) ) {
+			return;
+		}
+
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.NotPrepared -- identifiers sanitized via preg_replace above.
+		$renamed = $wpdb->query( "RENAME TABLE {$old} TO {$new}" );
+
+		if ( false !== $renamed ) {
+			self::log( 'Renamed the bundles table from the previous plugin name.' );
+			Bundles::flush_cache();
+		} else {
+			self::log( 'Bundles table rename failed: ' . $wpdb->last_error, 'error' );
+		}
 	}
 
 	/**
@@ -127,7 +157,7 @@ class Install {
 	public static function table_name() {
 		global $wpdb;
 
-		$raw  = $wpdb->prefix . 'bundlecraft_bundles';
+		$raw  = $wpdb->prefix . 'pickpack_bundles';
 		$name = preg_replace( '/[^A-Za-z0-9_]/', '', $raw );
 
 		return $name ? $name : $raw;
@@ -152,7 +182,7 @@ class Install {
 		$target = self::table_name();
 
 		// Only import when the new table is still empty, so re-activations
-		// never overwrite bundles created in BundleCraft.
+		// never overwrite bundles created in PickPack.
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- sanitized custom table identifier, read-only check.
 		$existing = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$target}" );
 
@@ -208,6 +238,6 @@ class Install {
 			return;
 		}
 
-		wc_get_logger()->log( $level, $message, [ 'source' => 'bundlecraft-for-woocommerce' ] );
+		wc_get_logger()->log( $level, $message, [ 'source' => 'pickpack-for-woocommerce' ] );
 	}
 }

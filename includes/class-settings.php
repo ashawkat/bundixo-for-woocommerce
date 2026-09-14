@@ -2,10 +2,10 @@
 /**
  * Plugin settings.
  *
- * @package BundleCraft
+ * @package PickPack
  */
 
-namespace BundleCraft;
+namespace PickPack;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -19,7 +19,7 @@ class Settings {
 	/**
 	 * Option key.
 	 */
-	const OPTION_KEY = 'bundlecraft_settings';
+	const OPTION_KEY = 'pickpack_settings';
 
 	/**
 	 * Default settings.
@@ -92,7 +92,7 @@ class Settings {
 		 * @param array $clean    Sanitized settings.
 		 * @param array $settings Raw settings.
 		 */
-		return apply_filters( 'bundlecraft_sanitize_settings', $clean, $settings );
+		return apply_filters( 'pickpack_sanitize_settings', $clean, $settings );
 	}
 
 	/**

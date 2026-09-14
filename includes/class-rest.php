@@ -6,24 +6,24 @@
  * arguments with sanitization/validation callbacks, and admin routes are
  * gated by a permission callback so authorization cannot be bypassed.
  *
- * @package BundleCraft
+ * @package PickPack
  */
 
-namespace BundleCraft;
+namespace PickPack;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Registers and serves the bundlecraft/v1 REST namespace.
+ * Registers and serves the pickpack/v1 REST namespace.
  */
 class Rest {
 
 	/**
 	 * REST namespace.
 	 */
-	const NAMESPACE_V1 = 'bundlecraft/v1';
+	const NAMESPACE_V1 = 'pickpack/v1';
 
 	/**
 	 * Hook registration.
@@ -388,7 +388,7 @@ class Rest {
 		$bundle = Bundles::get( absint( $request['id'] ) );
 
 		if ( ! $bundle ) {
-			return new \WP_Error( 'bundlecraft_not_found', __( 'Bundle not found.', 'bundlecraft-for-woocommerce' ), [ 'status' => 404 ] );
+			return new \WP_Error( 'pickpack_not_found', __( 'Bundle not found.', 'pickpack-for-woocommerce' ), [ 'status' => 404 ] );
 		}
 
 		return rest_ensure_response( $bundle );
@@ -404,7 +404,7 @@ class Rest {
 		$bundle_id = absint( $request['id'] );
 
 		if ( ! Bundles::delete( $bundle_id ) ) {
-			return new \WP_Error( 'bundlecraft_delete_failed', __( 'Failed to delete bundle.', 'bundlecraft-for-woocommerce' ), [ 'status' => 500 ] );
+			return new \WP_Error( 'pickpack_delete_failed', __( 'Failed to delete bundle.', 'pickpack-for-woocommerce' ), [ 'status' => 500 ] );
 		}
 
 		return rest_ensure_response( [ 'deleted' => true ] );
@@ -532,8 +532,8 @@ class Rest {
 			'wp_version'        => get_bloginfo( 'version' ),
 			'wc_version'        => defined( 'WC_VERSION' ) ? WC_VERSION : '',
 			'php_version'       => PHP_VERSION,
-			'plugin_version'    => BUNDLECRAFT_VERSION,
-			'db_version'        => get_option( 'bundlecraft_db_version', '' ),
+			'plugin_version'    => PICKPACK_VERSION,
+			'db_version'        => get_option( 'pickpack_db_version', '' ),
 			'table_name'        => $table,
 			'table_exists'      => (bool) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ),
 			'bundle_count'      => (int) $row_count,
@@ -568,7 +568,7 @@ class Rest {
 		$bundle = Bundles::get( absint( $request['id'] ) );
 
 		if ( ! $bundle || ! $bundle['enabled'] ) {
-			return new \WP_Error( 'bundlecraft_not_found', __( 'Bundle not found.', 'bundlecraft-for-woocommerce' ), [ 'status' => 404 ] );
+			return new \WP_Error( 'pickpack_not_found', __( 'Bundle not found.', 'pickpack-for-woocommerce' ), [ 'status' => 404 ] );
 		}
 
 		return rest_ensure_response( Frontend::bundle_payload( $bundle ) );
@@ -585,13 +585,13 @@ class Rest {
 		$bundle = Bundles::get( absint( $request['bundle_id'] ) );
 
 		if ( ! $bundle || ! $bundle['enabled'] ) {
-			return new \WP_Error( 'bundlecraft_not_found', __( 'Bundle not found.', 'bundlecraft-for-woocommerce' ), [ 'status' => 404 ] );
+			return new \WP_Error( 'pickpack_not_found', __( 'Bundle not found.', 'pickpack-for-woocommerce' ), [ 'status' => 404 ] );
 		}
 
 		$items = $this->normalize_items( $request['items'], $bundle );
 
 		if ( empty( $items ) ) {
-			return new \WP_Error( 'bundlecraft_empty_quote', __( 'No valid products selected.', 'bundlecraft-for-woocommerce' ), [ 'status' => 400 ] );
+			return new \WP_Error( 'pickpack_empty_quote', __( 'No valid products selected.', 'pickpack-for-woocommerce' ), [ 'status' => 400 ] );
 		}
 
 		return rest_ensure_response( $this->calculate_quote( $bundle, $items ) );
@@ -607,26 +607,26 @@ class Rest {
 	 */
 	public function add_to_cart( $request ) {
 		if ( ! function_exists( 'WC' ) || ! function_exists( 'wc_get_product' ) ) {
-			return new \WP_Error( 'bundlecraft_wc_missing', __( 'WooCommerce is not available.', 'bundlecraft-for-woocommerce' ), [ 'status' => 500 ] );
+			return new \WP_Error( 'pickpack_wc_missing', __( 'WooCommerce is not available.', 'pickpack-for-woocommerce' ), [ 'status' => 500 ] );
 		}
 
 		$bundle = Bundles::get( absint( $request['bundle_id'] ) );
 
 		if ( ! $bundle || ! $bundle['enabled'] ) {
-			return new \WP_Error( 'bundlecraft_not_found', __( 'Bundle not found.', 'bundlecraft-for-woocommerce' ), [ 'status' => 404 ] );
+			return new \WP_Error( 'pickpack_not_found', __( 'Bundle not found.', 'pickpack-for-woocommerce' ), [ 'status' => 404 ] );
 		}
 
 		$items = $this->normalize_items( $request['items'], $bundle );
 
 		if ( empty( $items ) ) {
-			return new \WP_Error( 'bundlecraft_empty_selection', __( 'No valid products selected.', 'bundlecraft-for-woocommerce' ), [ 'status' => 400 ] );
+			return new \WP_Error( 'pickpack_empty_selection', __( 'No valid products selected.', 'pickpack-for-woocommerce' ), [ 'status' => 400 ] );
 		}
 
 		// Authoritative pricing, computed before anything touches the cart.
 		$quote = $this->calculate_quote( $bundle, $items );
 
 		if ( empty( $quote['products'] ) ) {
-			return new \WP_Error( 'bundlecraft_empty_selection', __( 'No purchasable products selected.', 'bundlecraft-for-woocommerce' ), [ 'status' => 400 ] );
+			return new \WP_Error( 'pickpack_empty_selection', __( 'No purchasable products selected.', 'pickpack-for-woocommerce' ), [ 'status' => 400 ] );
 		}
 
 		// WooCommerce skips cart/session initialization for REST requests
@@ -637,7 +637,7 @@ class Rest {
 		}
 
 		if ( ! WC()->session || ! WC()->cart ) {
-			return new \WP_Error( 'bundlecraft_cart_missing', __( 'Cart is not available.', 'bundlecraft-for-woocommerce' ), [ 'status' => 500 ] );
+			return new \WP_Error( 'pickpack_cart_missing', __( 'Cart is not available.', 'pickpack-for-woocommerce' ), [ 'status' => 500 ] );
 		}
 
 		// Remove any previous bundle coupon so bundles never mix.
@@ -657,15 +657,15 @@ class Rest {
 			if ( ! $product || ! $product->is_purchasable() ) {
 				$failed[] = sprintf(
 					/* translators: %d: product or variation ID */
-					__( 'Product cannot be purchased: #%d', 'bundlecraft-for-woocommerce' ),
+					__( 'Product cannot be purchased: #%d', 'pickpack-for-woocommerce' ),
 					$check_id
 				);
 				continue;
 			}
 
 			$cart_item_data = [
-				'bundlecraft_bundle_item' => true,
-				'bundlecraft_bundle_id'   => $bundle['id'],
+				'pickpack_bundle_item' => true,
+				'pickpack_bundle_id'   => $bundle['id'],
 			];
 
 			$variation_attributes = [];
@@ -690,7 +690,7 @@ class Rest {
 			} else {
 				$failed[] = sprintf(
 					/* translators: %d: product ID */
-					__( 'Failed to add product #%d to the cart.', 'bundlecraft-for-woocommerce' ),
+					__( 'Failed to add product #%d to the cart.', 'pickpack-for-woocommerce' ),
 					$product_id
 				);
 			}
@@ -698,8 +698,8 @@ class Rest {
 
 		if ( empty( $added ) ) {
 			return new \WP_Error(
-				'bundlecraft_add_failed',
-				__( 'Failed to add any products to the cart.', 'bundlecraft-for-woocommerce' ),
+				'pickpack_add_failed',
+				__( 'Failed to add any products to the cart.', 'pickpack-for-woocommerce' ),
 				[ 'status' => 400, 'errors' => $failed ]
 			);
 		}
@@ -749,7 +749,7 @@ class Rest {
 
 		WC()->cart->calculate_totals();
 
-		do_action( 'bundlecraft_bundle_added_to_cart', $bundle['id'], $quote );
+		do_action( 'pickpack_bundle_added_to_cart', $bundle['id'], $quote );
 
 		return rest_ensure_response(
 			[

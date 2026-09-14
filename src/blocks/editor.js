@@ -1,5 +1,5 @@
 /**
- * BundleCraft Gutenberg block.
+ * PickPack Gutenberg block.
  *
  * Written against the WordPress editor's own libraries (wp.element,
  * wp.blocks, ...) which are provided as externals at build time, so the
@@ -30,7 +30,7 @@ function BundleIcon() {
 
 function BundlePicker( { value, bundles, onChange } ) {
 	const options = [
-		{ value: 0, label: __( 'Select a bundle…', 'bundlecraft-for-woocommerce' ) },
+		{ value: 0, label: __( 'Select a bundle…', 'pickpack-for-woocommerce' ) },
 		...bundles.map( ( bundle ) => ( {
 			value: bundle.id,
 			label: `${ bundle.name } (ID ${ bundle.id })`,
@@ -40,7 +40,7 @@ function BundlePicker( { value, bundles, onChange } ) {
 	return h( SelectControl, {
 		value: value || 0,
 		options,
-		label: __( 'Bundle', 'bundlecraft-for-woocommerce' ),
+		label: __( 'Bundle', 'pickpack-for-woocommerce' ),
 		onChange,
 	} );
 }
@@ -50,10 +50,10 @@ function BundlesTable( { onPick } ) {
 	const [ error, setError ] = useState( '' );
 
 	useEffect( () => {
-		apiFetch( { path: '/bundlecraft/v1/bundles-list' } )
+		apiFetch( { path: '/pickpack/v1/bundles-list' } )
 			.then( ( list ) => setBundles( list ) )
 			.catch( ( err ) => {
-				setError( err.message || __( 'Could not load bundles.', 'bundlecraft-for-woocommerce' ) );
+				setError( err.message || __( 'Could not load bundles.', 'pickpack-for-woocommerce' ) );
 				setBundles( [] );
 			} );
 	}, [] );
@@ -70,15 +70,15 @@ function BundlesTable( { onPick } ) {
 		return h(
 			'div',
 			{},
-			h( 'p', {}, __( 'You have not created any bundles yet.', 'bundlecraft-for-woocommerce' ) ),
+			h( 'p', {}, __( 'You have not created any bundles yet.', 'pickpack-for-woocommerce' ) ),
 			h(
 				Button,
 				{
 					variant: 'primary',
-					href: 'admin.php?page=bundlecraft',
+					href: 'admin.php?page=pickpack',
 					target: '_top',
 				},
-				__( 'Create your first bundle', 'bundlecraft-for-woocommerce' )
+				__( 'Create your first bundle', 'pickpack-for-woocommerce' )
 			)
 		);
 	}
@@ -98,9 +98,9 @@ function EditBlock( props ) {
 			h(
 				'div',
 				{ style: { padding: '16px' } },
-				h( 'h3', { style: { margin: '0 0 12px' } }, __( 'BundleCraft', 'bundlecraft-for-woocommerce' ) ),
+				h( 'h3', { style: { margin: '0 0 12px' } }, __( 'PickPack', 'pickpack-for-woocommerce' ) ),
 				h( 'p', { style: { margin: '0 0 8px', fontSize: '12px', color: '#757575' } },
-					__( 'Manage bundles in Dashboard → BundleCraft.', 'bundlecraft-for-woocommerce' ) )
+					__( 'Manage bundles in Dashboard → PickPack.', 'pickpack-for-woocommerce' ) )
 			)
 		);
 	}
@@ -112,8 +112,8 @@ function EditBlock( props ) {
 			Placeholder,
 			{
 				icon: h( BundleIcon ),
-				label: __( 'BundleCraft Bundle', 'bundlecraft-for-woocommerce' ),
-				instructions: __( 'Choose which bundle to display on this page.', 'bundlecraft-for-woocommerce' ),
+				label: __( 'PickPack Bundle', 'pickpack-for-woocommerce' ),
+				instructions: __( 'Choose which bundle to display on this page.', 'pickpack-for-woocommerce' ),
 			},
 			h( BundlesTable, {
 				onPick( id ) {
@@ -124,13 +124,13 @@ function EditBlock( props ) {
 			} )
 		);
 	} else if ( ! ServerSideRender ) {
-		body = h( 'p', {}, __( 'Loading preview…', 'bundlecraft-for-woocommerce' ) );
+		body = h( 'p', {}, __( 'Loading preview…', 'pickpack-for-woocommerce' ) );
 	} else {
 		body = h(
 			'div',
 			{},
 			h( ServerSideRender, {
-				block: 'bundlecraft/bundle',
+				block: 'pickpack/bundle',
 				attributes: { bundleId },
 			} ),
 			h(
@@ -139,7 +139,7 @@ function EditBlock( props ) {
 				h(
 					Button,
 					{ variant: 'tertiary', isDestructive: true, onClick: () => setAttributes( { bundleId: 0 } ) },
-					__( 'Change bundle', 'bundlecraft-for-woocommerce' )
+					__( 'Change bundle', 'pickpack-for-woocommerce' )
 				)
 			)
 		);
@@ -153,16 +153,16 @@ function EditBlock( props ) {
 	);
 }
 
-registerBlockType( 'bundlecraft/bundle', {
+registerBlockType( 'pickpack/bundle', {
 	apiVersion: 3,
-	title: __( 'BundleCraft Bundle', 'bundlecraft-for-woocommerce' ),
+	title: __( 'PickPack Bundle', 'pickpack-for-woocommerce' ),
 	description: __(
-		'Display a BundleCraft bundle builder widget with tiered quantity discounts.',
-		'bundlecraft-for-woocommerce'
+		'Display a PickPack bundle builder widget with tiered quantity discounts.',
+		'pickpack-for-woocommerce'
 	),
 	icon: BundleIcon,
 	category: 'woocommerce',
-	keywords: [ __( 'bundle' ), 'bundlecraft', 'woocommerce', __( 'discount' ) ],
+	keywords: [ __( 'bundle' ), 'pickpack', 'woocommerce', __( 'discount' ) ],
 	attributes: {
 		bundleId: {
 			type: 'integer',
@@ -177,7 +177,7 @@ registerBlockType( 'bundlecraft/bundle', {
 		from: [
 			{
 				type: 'shortcode',
-				tag: 'bundlecraft_bundle',
+				tag: 'pickpack_bundle',
 				attributes: {
 					bundleId: {
 						type: 'integer',
@@ -188,7 +188,7 @@ registerBlockType( 'bundlecraft/bundle', {
 					},
 				},
 				transform( attributes ) {
-					return createBlock( 'bundlecraft/bundle', {
+					return createBlock( 'pickpack/bundle', {
 						bundleId: attributes.bundleId || 0,
 					} );
 				},

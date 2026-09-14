@@ -2,17 +2,17 @@
 /**
  * Bundle shortcode.
  *
- * @package BundleCraft
+ * @package PickPack
  */
 
-namespace BundleCraft;
+namespace PickPack;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Registers the [bundlecraft_bundle] shortcode.
+ * Registers the [pickpack_bundle] shortcode.
  */
 class Shortcode {
 
@@ -22,7 +22,7 @@ class Shortcode {
 	 * @return void
 	 */
 	public function register_hooks() {
-		add_shortcode( 'bundlecraft_bundle', [ $this, 'render' ] );
+		add_shortcode( 'pickpack_bundle', [ $this, 'render' ] );
 	}
 
 	/**
@@ -35,13 +35,13 @@ class Shortcode {
 		$atts = shortcode_atts(
 			[ 'id' => 0 ],
 			$atts,
-			'bundlecraft_bundle'
+			'pickpack_bundle'
 		);
 
 		$bundle = Bundles::get( absint( $atts['id'] ) );
 
 		if ( ! $bundle ) {
-			return '<p class="bundlecraft-error">' . esc_html__( 'Bundle not found.', 'bundlecraft-for-woocommerce' ) . '</p>';
+			return '<p class="pickpack-error">' . esc_html__( 'Bundle not found.', 'pickpack-for-woocommerce' ) . '</p>';
 		}
 
 		if ( ! $bundle['enabled'] ) {

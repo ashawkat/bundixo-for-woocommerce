@@ -1,8 +1,8 @@
 {
-	"name": "bundlecraft-for-woocommerce",
+	"name": "pickpack-for-woocommerce",
 	"private": true,
 	"version": "1.0.0",
-	"description": "Build scripts for BundleCraft for WooCommerce (Vue 3 admin app and storefront widget).",
+	"description": "Build scripts for PickPack for WooCommerce (Vue 3 admin app and storefront widget).",
 	"license": "GPL-2.0-or-later",
 	"type": "module",
 	"scripts": {

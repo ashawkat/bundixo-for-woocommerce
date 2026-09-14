@@ -2,7 +2,7 @@
  * Currency and date formatting helpers for the admin app.
  */
 
-const config = window.bundlecraftAdmin || {};
+const config = window.pickpackAdmin || {};
 
 export function formatPrice( value ) {
 	const currency = config.currency || {};

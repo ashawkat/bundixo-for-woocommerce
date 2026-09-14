@@ -1,4 +1,4 @@
-/* BundleCraft admin app styles. */
+/* PickPack admin app styles. */
 
 /* Google Sans Flex (OFL) — bundled locally at assets/fonts/, no CDN calls.
    Latin weight-axis variable build; see assets/fonts/OFL.txt. */
@@ -10,17 +10,17 @@
 	font-display: swap;
 }
 
-#bundlecraft-admin-app {
+#pickpack-admin-app {
 	font-family: 'Google Sans Flex', 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
 	font-size: 13px;
 	letter-spacing: 0.1px;
 	-webkit-font-smoothing: antialiased;
 }
 
-#bundlecraft-admin-app .bc-bundles,
-#bundlecraft-admin-app .bc-analytics,
-#bundlecraft-admin-app .bc-settings,
-#bundlecraft-admin-app .bc-diagnostics {
+#pickpack-admin-app .bc-bundles,
+#pickpack-admin-app .bc-analytics,
+#pickpack-admin-app .bc-settings,
+#pickpack-admin-app .bc-diagnostics {
 	animation: bc-fade-up 0.35s ease both;
 }
 
@@ -1434,6 +1434,6 @@
 	margin: 4px 0 0 4px;
 }
 
-#bundlecraft-admin-app > p:only-child {
+#pickpack-admin-app > p:only-child {
 	color: #646970;
 }

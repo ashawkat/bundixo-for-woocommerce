@@ -2,10 +2,10 @@
 /**
  * Analytics queries powering the admin dashboard.
  *
- * @package BundleCraft
+ * @package PickPack
  */
 
-namespace BundleCraft;
+namespace PickPack;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -97,28 +97,28 @@ class Analytics {
 	private static function date_range_label( $date_range, $start_ts, $end_ts ) {
 		switch ( $date_range ) {
 			case '7days':
-				return __( 'Last 7 Days', 'bundlecraft-for-woocommerce' );
+				return __( 'Last 7 Days', 'pickpack-for-woocommerce' );
 			case '30days':
-				return __( 'Last 30 Days', 'bundlecraft-for-woocommerce' );
+				return __( 'Last 30 Days', 'pickpack-for-woocommerce' );
 			case '90days':
-				return __( 'Last 90 Days', 'bundlecraft-for-woocommerce' );
+				return __( 'Last 90 Days', 'pickpack-for-woocommerce' );
 			case 'this_month':
-				return __( 'This Month', 'bundlecraft-for-woocommerce' );
+				return __( 'This Month', 'pickpack-for-woocommerce' );
 			case 'last_month':
-				return __( 'Last Month', 'bundlecraft-for-woocommerce' );
+				return __( 'Last Month', 'pickpack-for-woocommerce' );
 			case 'this_quarter':
-				return __( 'This Quarter', 'bundlecraft-for-woocommerce' );
+				return __( 'This Quarter', 'pickpack-for-woocommerce' );
 			case 'this_year':
-				return __( 'This Year', 'bundlecraft-for-woocommerce' );
+				return __( 'This Year', 'pickpack-for-woocommerce' );
 			case 'custom':
 				return sprintf(
 					/* translators: 1: start date, 2: end date */
-					__( 'Custom: %1$s to %2$s', 'bundlecraft-for-woocommerce' ),
+					__( 'Custom: %1$s to %2$s', 'pickpack-for-woocommerce' ),
 					gmdate( 'M j, Y', $start_ts ),
 					gmdate( 'M j, Y', $end_ts )
 				);
 			default:
-				return __( 'Custom Range', 'bundlecraft-for-woocommerce' );
+				return __( 'Custom Range', 'pickpack-for-woocommerce' );
 		}
 	}
 
@@ -534,7 +534,7 @@ class Analytics {
 
 			$usage[] = [
 				'id'          => $bundle['id'],
-				'name'        => '' !== $bundle['name'] ? $bundle['name'] : __( 'Unnamed Bundle', 'bundlecraft-for-woocommerce' ),
+				'name'        => '' !== $bundle['name'] ? $bundle['name'] : __( 'Unnamed Bundle', 'pickpack-for-woocommerce' ),
 				'usage_count' => $usage_count,
 				'created_at'  => $bundle['created_at'],
 			];
