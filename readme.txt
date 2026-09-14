@@ -80,6 +80,7 @@ Yes. On activation, PickPack migrates bundles and settings from the legacy table
 2. Tiered discount builder: set quantity thresholds and percentage discounts.
 3. Analytics dashboard: coupons, revenue, orders, cart share, and top bundles with date-range filtering.
 4. Storefront bundle widget: quantity steppers, unlocked tiers, and a live summary with the discount applied.
+5. Native Gutenberg block: insert the "PickPack Bundle" block with an in-editor preview.
 
 == Changelog ==
 

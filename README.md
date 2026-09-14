@@ -29,11 +29,13 @@ Build product bundle promotions with tiered quantity discounts, a modern Vue-pow
 |---|---|
 | ![Bundle editor with live preview](.wordpress-org/screenshot-1.png) | ![Tiered discount builder](.wordpress-org/screenshot-2.png) |
 | ![Analytics dashboard](.wordpress-org/screenshot-3.png) | ![Storefront bundle widget](.wordpress-org/screenshot-4.png) |
+| ![Gutenberg block with live preview](.wordpress-org/screenshot-5.png) | |
 
 1. Bundle editor with product picker, drag-and-drop ordering, and a live preview of the storefront widget.
 2. Tiered discount builder.
 3. Analytics dashboard with date-range filtering.
 4. Storefront bundle widget with tier progress and live totals.
+5. Native Gutenberg block — search "PickPack Bundle" and insert with an in-editor preview.
 
 ## Database
 
