@@ -1,6 +1,6 @@
-# PickPack for WooCommerce
+# Bundixo for WooCommerce
 
-![PickPack for WooCommerce](.wordpress-org/banner-1544x500.png)
+![Bundixo for WooCommerce](.wordpress-org/banner-1544x500.png)
 
 **[⬇ Download the latest release](../../releases/latest)** — install via **Plugins → Add New → Upload Plugin**.
 
@@ -14,7 +14,7 @@ Build product bundle promotions with tiered quantity discounts, a modern Vue-pow
 ## Features
 
 - Bundle editor admin app (Vue 3) with product search, drag-and-drop ordering, tiered quantity discounts, text/color controls, and a live preview.
-- **Gutenberg block** (`pickpack/bundle`) with an in-editor preview and automatic shortcode → block conversion, plus the classic `[pickpack_bundle id="…"]` shortcode.
+- **Gutenberg block** (`bundixo/bundle`) with an in-editor preview and automatic shortcode → block conversion, plus the classic `[bundixo_bundle id="…"]` shortcode.
 - Storefront widget: variation support, quantity steppers or select mode, tier progress, summary, and a mobile sticky cart.
 - Server-authoritative pricing: the browser never computes discounts. Quotes and cart additions go through the WordPress REST API, and the discount is applied as a real WooCommerce coupon.
 - Analytics dashboard (coupon usage, revenue over time, cart share, top bundles) with date-range filtering.
@@ -35,13 +35,13 @@ Build product bundle promotions with tiered quantity discounts, a modern Vue-pow
 2. Tiered discount builder.
 3. Analytics dashboard with date-range filtering.
 4. Storefront bundle widget with tier progress and live totals.
-5. Native Gutenberg block — search "PickPack Bundle" and insert with an in-editor preview.
+5. Native Gutenberg block — search "Bundixo Bundle" and insert with an in-editor preview.
 
 ## Database
 
-The plugin creates **one custom table** on activation — `{$wpdb->prefix}pickpack_bundles` (e.g. `wp_pickpack_bundles`) — and stores everything else in standard WordPress/WooCommerce tables and options. Schema changes are version-tracked through the `pickpack_db_version` option and applied with `dbDelta()`.
+The plugin creates **one custom table** on activation — `{$wpdb->prefix}bundixo_bundles` (e.g. `wp_bundixo_bundles`) — and stores everything else in standard WordPress/WooCommerce tables and options. Schema changes are version-tracked through the `bundixo_db_version` option and applied with `dbDelta()`.
 
-### `pickpack_bundles`
+### `bundixo_bundles`
 
 | Column | Type | Purpose |
 |---|---|---|
@@ -74,28 +74,28 @@ The plugin creates **one custom table** on activation — `{$wpdb->prefix}pickpa
 
 | Location | Key / pattern | Purpose |
 |---|---|---|
-| `wp_options` | `pickpack_settings` | Plugin settings (logging, default cart behavior, coupon lifetime) |
-| `wp_options` | `pickpack_db_version` | Schema version for `dbDelta()` upgrades |
-| `wp_options` | `pickpack_legacy_migrated` | One-time flag for legacy data migration |
-| `wp_posts` | `shop_coupon` posts titled `pickpack_bundle_*` | Dynamic discount coupons — expire after the configured lifetime; unused ones are deleted by a daily cron |
-| Cart item meta | `pickpack_bundle_item`, `pickpack_bundle_id` | Marks cart lines that belong to a bundle |
-| WC session | `pickpack_bundle_discount` | Active bundle discount + coupon code for the current shopper |
+| `wp_options` | `bundixo_settings` | Plugin settings (logging, default cart behavior, coupon lifetime) |
+| `wp_options` | `bundixo_db_version` | Schema version for `dbDelta()` upgrades |
+| `wp_options` | `bundixo_legacy_migrated` | One-time flag for legacy data migration |
+| `wp_posts` | `shop_coupon` posts titled `bundixo_bundle_*` | Dynamic discount coupons — expire after the configured lifetime; unused ones are deleted by a daily cron |
+| Cart item meta | `bundixo_bundle_item`, `bundixo_bundle_id` | Marks cart lines that belong to a bundle |
+| WC session | `bundixo_bundle_discount` | Active bundle discount + coupon code for the current shopper |
 
 Uninstalling removes all of the above (table, options, and unused bundle coupons).
 
 ## Repository layout
 
 ```
-pickpack-for-woocommerce.php   Plugin bootstrap (header, constants, autoloader, hooks)
-includes/                         PHP classes (namespace PickPack\)
+bundixo-for-woocommerce.php   Plugin bootstrap (header, constants, autoloader, hooks)
+includes/                         PHP classes (namespace Bundixo\)
   class-plugin.php                  Orchestrator: menus, enqueues, page shells
   class-install.php                 Schema, upgrades, legacy migration
   class-bundles.php                 Bundle CRUD + tier logic
-  class-rest.php                    pickpack/v1 REST routes (admin + storefront)
+  class-rest.php                    bundixo/v1 REST routes (admin + storefront)
   class-cart.php                    Dynamic coupon engine + cart hooks
   class-analytics.php               Dashboard queries
   class-frontend.php                Product/bundle payloads + widget rendering
-  class-shortcode.php               [pickpack_bundle]
+  class-shortcode.php               [bundixo_bundle]
   class-settings.php                Option-backed settings
 templates/bundle-display.php      Widget shell (payload + mount point)
 src/                              Vue 3 sources (admin app, storefront widget)
@@ -104,7 +104,7 @@ assets/build/                     Compiled bundles (committed, used by the plugi
 assets/fonts/                     Google Sans Flex (OFL) + license
 assets/img/                       Admin menu icon
 .wordpress-org/                   WordPress.org directory assets: banners, icon, logo SVG
-languages/                        Translations (pickpack-for-woocommerce.pot)
+languages/                        Translations (bundixo-for-woocommerce.pot)
 ```
 
 ## Development
@@ -121,7 +121,7 @@ The two entry points are built as self-contained IIFE bundles (no shared chunks,
 
 ```
 npm run build
-wp dist-archive . pickpack-for-woocommerce.zip
+wp dist-archive . bundixo-for-woocommerce.zip
 ```
 
 `.distignore` excludes development files (`src/`, `node_modules/`, configs) from the archive.

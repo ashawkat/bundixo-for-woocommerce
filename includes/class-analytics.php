@@ -2,10 +2,10 @@
 /**
  * Analytics queries powering the admin dashboard.
  *
- * @package PickPack
+ * @package Bundixo
  */
 
-namespace PickPack;
+namespace Bundixo;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -97,28 +97,28 @@ class Analytics {
 	private static function date_range_label( $date_range, $start_ts, $end_ts ) {
 		switch ( $date_range ) {
 			case '7days':
-				return __( 'Last 7 Days', 'pickpack-for-woocommerce' );
+				return __( 'Last 7 Days', 'bundixo-for-woocommerce' );
 			case '30days':
-				return __( 'Last 30 Days', 'pickpack-for-woocommerce' );
+				return __( 'Last 30 Days', 'bundixo-for-woocommerce' );
 			case '90days':
-				return __( 'Last 90 Days', 'pickpack-for-woocommerce' );
+				return __( 'Last 90 Days', 'bundixo-for-woocommerce' );
 			case 'this_month':
-				return __( 'This Month', 'pickpack-for-woocommerce' );
+				return __( 'This Month', 'bundixo-for-woocommerce' );
 			case 'last_month':
-				return __( 'Last Month', 'pickpack-for-woocommerce' );
+				return __( 'Last Month', 'bundixo-for-woocommerce' );
 			case 'this_quarter':
-				return __( 'This Quarter', 'pickpack-for-woocommerce' );
+				return __( 'This Quarter', 'bundixo-for-woocommerce' );
 			case 'this_year':
-				return __( 'This Year', 'pickpack-for-woocommerce' );
+				return __( 'This Year', 'bundixo-for-woocommerce' );
 			case 'custom':
 				return sprintf(
 					/* translators: 1: start date, 2: end date */
-					__( 'Custom: %1$s to %2$s', 'pickpack-for-woocommerce' ),
+					__( 'Custom: %1$s to %2$s', 'bundixo-for-woocommerce' ),
 					gmdate( 'M j, Y', $start_ts ),
 					gmdate( 'M j, Y', $end_ts )
 				);
 			default:
-				return __( 'Custom Range', 'pickpack-for-woocommerce' );
+				return __( 'Custom Range', 'bundixo-for-woocommerce' );
 		}
 	}
 
@@ -534,7 +534,7 @@ class Analytics {
 
 			$usage[] = [
 				'id'          => $bundle['id'],
-				'name'        => '' !== $bundle['name'] ? $bundle['name'] : __( 'Unnamed Bundle', 'pickpack-for-woocommerce' ),
+				'name'        => '' !== $bundle['name'] ? $bundle['name'] : __( 'Unnamed Bundle', 'bundixo-for-woocommerce' ),
 				'usage_count' => $usage_count,
 				'created_at'  => $bundle['created_at'],
 			];

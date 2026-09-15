@@ -3,7 +3,7 @@
  * Block editor preview: a compact, non-interactive summary of the bundle.
  * Included from Frontend::render_editor_preview().
  *
- * @package PickPack
+ * @package Bundixo
  *
  * @var array $bundle   Formatted bundle.
  * @var array $products [[name, image]] sample products.
@@ -13,11 +13,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
-<div class="pickpack-editor-preview" style="border:1px solid #dcdcde;border-radius:10px;padding:14px 16px;background:#fff;font-family:inherit;">
+<div class="bundixo-editor-preview" style="border:1px solid #dcdcde;border-radius:10px;padding:14px 16px;background:#fff;font-family:inherit;">
 	<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
 		<strong style="font-size:14px;"><?php echo esc_html( $bundle['name'] ); ?></strong>
 		<span style="font-size:11px;background:#e6f4e6;color:#2e7d32;border-radius:999px;padding:2px 9px;text-transform:uppercase;letter-spacing:.03em;">
-			<?php esc_html_e( 'Live on your store', 'pickpack-for-woocommerce' ); ?>
+			<?php esc_html_e( 'Live on your store', 'bundixo-for-woocommerce' ); ?>
 		</span>
 	</div>
 
@@ -41,7 +41,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					echo esc_html(
 						sprintf(
 							/* translators: 1: quantity, 2: discount percentage */
-							__( '%1$d+ items → %2$s%% off', 'pickpack-for-woocommerce' ),
+							__( '%1$d+ items → %2$s%% off', 'bundixo-for-woocommerce' ),
 							(int) $tier['quantity'],
 							(float) $tier['discount']
 						)
@@ -53,6 +53,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php endif; ?>
 
 	<p style="margin:0;color:#8c8f94;font-size:11.5px;">
-		<?php esc_html_e( 'Preview: shoppers will see the interactive bundle builder here.', 'pickpack-for-woocommerce' ); ?>
+		<?php esc_html_e( 'Preview: shoppers will see the interactive bundle builder here.', 'bundixo-for-woocommerce' ); ?>
 	</p>
 </div>

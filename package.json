@@ -1,8 +1,8 @@
 {
-	"name": "pickpack-for-woocommerce",
+	"name": "bundixo-for-woocommerce",
 	"private": true,
 	"version": "1.0.0",
-	"description": "Build scripts for PickPack for WooCommerce (Vue 3 admin app and storefront widget).",
+	"description": "Build scripts for Bundixo for WooCommerce (Vue 3 admin app and storefront widget).",
 	"license": "GPL-2.0-or-later",
 	"type": "module",
 	"scripts": {

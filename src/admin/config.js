@@ -2,7 +2,7 @@
  * Access to the localized admin configuration.
  */
 
-const config = window.pickpackAdmin || {};
+const config = window.bundixoAdmin || {};
 
 /**
  * Returns a localized string, falling back to the English default.

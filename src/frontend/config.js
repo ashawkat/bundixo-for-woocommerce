@@ -2,7 +2,7 @@
  * Localized storefront configuration.
  */
 
-const config = window.pickpackFrontend || {};
+const config = window.bundixoFrontend || {};
 
 /**
  * Returns a localized string, falling back to the English default.

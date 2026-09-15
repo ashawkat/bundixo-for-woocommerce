@@ -2,10 +2,10 @@
 /**
  * Bundle CRUD and pricing-tier logic.
  *
- * @package PickPack
+ * @package Bundixo
  */
 
-namespace PickPack;
+namespace Bundixo;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -20,17 +20,17 @@ class Bundles {
 	/**
 	 * Object cache group.
 	 */
-	const CACHE_GROUP = 'pickpack';
+	const CACHE_GROUP = 'bundixo';
 
 	/**
 	 * Cache key for the full bundle list.
 	 */
-	const CACHE_ALL = 'pickpack_all_bundles';
+	const CACHE_ALL = 'bundixo_all_bundles';
 
 	/**
 	 * Cache key for enabled bundles.
 	 */
-	const CACHE_ENABLED = 'pickpack_enabled_bundles';
+	const CACHE_ENABLED = 'bundixo_enabled_bundles';
 
 	/**
 	 * Cache TTL in seconds.
@@ -52,15 +52,15 @@ class Bundles {
 			'max_quantity'           => 10,
 			'product_ids'            => [],
 			'discount_tiers'         => [],
-			'heading_text'           => __( 'Select Your Products Below', 'pickpack-for-woocommerce' ),
-			'hint_text'              => __( 'Bundle 2, 3, 4 or 5 items and watch the savings grow.', 'pickpack-for-woocommerce' ),
+			'heading_text'           => __( 'Select Your Products Below', 'bundixo-for-woocommerce' ),
+			'hint_text'              => __( 'Bundle 2, 3, 4 or 5 items and watch the savings grow.', 'bundixo-for-woocommerce' ),
 			'primary_color'          => '#6366f1',
 			'accent_color'           => '#4f46e5',
 			'hover_bg_color'         => '#eef2ff',
 			'hover_accent_color'     => '#4338ca',
 			'button_text_color'      => '#ffffff',
-			'button_text'            => __( 'Add Bundle to Cart', 'pickpack-for-woocommerce' ),
-			'progress_text'          => __( 'Your Savings Progress', 'pickpack-for-woocommerce' ),
+			'button_text'            => __( 'Add Bundle to Cart', 'bundixo-for-woocommerce' ),
+			'progress_text'          => __( 'Your Savings Progress', 'bundixo-for-woocommerce' ),
 			'cart_behavior'          => 'sidecart',
 			'show_bundle_title'      => 1,
 			'show_bundle_description' => 1,
@@ -85,14 +85,14 @@ class Bundles {
 		$name      = isset( $data['name'] ) ? sanitize_text_field( $data['name'] ) : '';
 
 		if ( '' === trim( $name ) ) {
-			return new \WP_Error( 'pickpack_invalid_name', __( 'Bundle name is required.', 'pickpack-for-woocommerce' ) );
+			return new \WP_Error( 'bundixo_invalid_name', __( 'Bundle name is required.', 'bundixo-for-woocommerce' ) );
 		}
 
 		$product_ids = self::sanitize_product_ids( $data['product_ids'] ?? [] );
 		$tiers       = self::sanitize_tiers( $data['discount_tiers'] ?? [] );
 
 		if ( empty( $tiers ) ) {
-			return new \WP_Error( 'pickpack_invalid_tiers', __( 'At least one discount tier is required.', 'pickpack-for-woocommerce' ) );
+			return new \WP_Error( 'bundixo_invalid_tiers', __( 'At least one discount tier is required.', 'bundixo-for-woocommerce' ) );
 		}
 
 		$defaults = self::defaults();
@@ -131,7 +131,7 @@ class Bundles {
 			$result = $wpdb->update( $table, $record, [ 'id' => $bundle_id ], $formats, [ '%d' ] );
 
 			if ( false === $result ) {
-				return new \WP_Error( 'pickpack_db_error', self::db_error_message( $wpdb->last_error ? $wpdb->last_error : $old_error ) );
+				return new \WP_Error( 'bundixo_db_error', self::db_error_message( $wpdb->last_error ? $wpdb->last_error : $old_error ) );
 			}
 
 			self::flush_bundle_cache( $bundle_id );
@@ -143,7 +143,7 @@ class Bundles {
 		$result = $wpdb->insert( $table, $record, $formats );
 
 		if ( false === $result || $wpdb->insert_id <= 0 ) {
-			return new \WP_Error( 'pickpack_db_error', self::db_error_message( $wpdb->last_error ? $wpdb->last_error : $old_error ) );
+			return new \WP_Error( 'bundixo_db_error', self::db_error_message( $wpdb->last_error ? $wpdb->last_error : $old_error ) );
 		}
 
 		$bundle_id = (int) $wpdb->insert_id;
@@ -199,7 +199,7 @@ class Bundles {
 			return null;
 		}
 
-		$cache_key = 'pickpack_bundle_' . $bundle_id;
+		$cache_key = 'bundixo_bundle_' . $bundle_id;
 		$cached    = wp_cache_get( $cache_key, self::CACHE_GROUP );
 
 		if ( false !== $cached ) {
@@ -329,7 +329,7 @@ class Bundles {
 	 * @return void
 	 */
 	private static function flush_bundle_cache( $bundle_id ) {
-		wp_cache_delete( 'pickpack_bundle_' . absint( $bundle_id ), self::CACHE_GROUP );
+		wp_cache_delete( 'bundixo_bundle_' . absint( $bundle_id ), self::CACHE_GROUP );
 		self::flush_cache();
 	}
 
@@ -522,9 +522,9 @@ class Bundles {
 		return $last_error
 			? sprintf(
 				/* translators: %s: database error message */
-				__( 'Failed to save bundle: %s', 'pickpack-for-woocommerce' ),
+				__( 'Failed to save bundle: %s', 'bundixo-for-woocommerce' ),
 				$last_error
 			)
-			: __( 'Failed to save bundle.', 'pickpack-for-woocommerce' );
+			: __( 'Failed to save bundle.', 'bundixo-for-woocommerce' );
 	}
 }

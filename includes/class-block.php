@@ -1,11 +1,11 @@
 <?php
 /**
- * Gutenberg block: pickpack/bundle.
+ * Gutenberg block: bundixo/bundle.
  *
- * @package PickPack
+ * @package Bundixo
  */
 
-namespace PickPack;
+namespace Bundixo;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -35,14 +35,14 @@ class Block {
 	 */
 	public function register_assets() {
 		wp_register_script(
-			'pickpack-block-editor',
-			PICKPACK_PLUGIN_URL . 'assets/build/block-editor.js',
+			'bundixo-block-editor',
+			BUNDIXO_PLUGIN_URL . 'assets/build/block-editor.js',
 			[ 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n', 'wp-api-fetch', 'wp-server-side-render' ],
 			$this->asset_version(),
 			true
 		);
 
-		wp_set_script_translations( 'pickpack-block-editor', 'pickpack-for-woocommerce' );
+		wp_set_script_translations( 'bundixo-block-editor', 'bundixo-for-woocommerce' );
 	}
 
 	/**
@@ -56,7 +56,7 @@ class Block {
 		}
 
 		register_block_type(
-			PICKPACK_PLUGIN_DIR . 'blocks/bundle',
+			BUNDIXO_PLUGIN_DIR . 'blocks/bundle',
 			[
 				'render_callback' => [ $this, 'render' ],
 			]
@@ -79,7 +79,7 @@ class Block {
 		$bundle = Bundles::get( $bundle_id );
 
 		if ( ! $bundle ) {
-			return '<p class="pickpack-error">' . esc_html__( 'Bundle not found.', 'pickpack-for-woocommerce' ) . '</p>';
+			return '<p class="bundixo-error">' . esc_html__( 'Bundle not found.', 'bundixo-for-woocommerce' ) . '</p>';
 		}
 
 		// The block editor renders a lightweight preview card instead of
@@ -101,10 +101,10 @@ class Block {
 	 * @return string
 	 */
 	private function asset_version() {
-		$file = PICKPACK_PLUGIN_DIR . 'assets/build/block-editor.js';
+		$file = BUNDIXO_PLUGIN_DIR . 'assets/build/block-editor.js';
 
 		return file_exists( $file )
-			? PICKPACK_VERSION . '.' . (string) filemtime( $file )
-			: PICKPACK_VERSION;
+			? BUNDIXO_VERSION . '.' . (string) filemtime( $file )
+			: BUNDIXO_VERSION;
 	}
 }

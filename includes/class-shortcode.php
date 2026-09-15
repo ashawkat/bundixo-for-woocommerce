@@ -2,17 +2,17 @@
 /**
  * Bundle shortcode.
  *
- * @package PickPack
+ * @package Bundixo
  */
 
-namespace PickPack;
+namespace Bundixo;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Registers the [pickpack_bundle] shortcode.
+ * Registers the [bundixo_bundle] shortcode.
  */
 class Shortcode {
 
@@ -22,7 +22,7 @@ class Shortcode {
 	 * @return void
 	 */
 	public function register_hooks() {
-		add_shortcode( 'pickpack_bundle', [ $this, 'render' ] );
+		add_shortcode( 'bundixo_bundle', [ $this, 'render' ] );
 	}
 
 	/**
@@ -35,13 +35,13 @@ class Shortcode {
 		$atts = shortcode_atts(
 			[ 'id' => 0 ],
 			$atts,
-			'pickpack_bundle'
+			'bundixo_bundle'
 		);
 
 		$bundle = Bundles::get( absint( $atts['id'] ) );
 
 		if ( ! $bundle ) {
-			return '<p class="pickpack-error">' . esc_html__( 'Bundle not found.', 'pickpack-for-woocommerce' ) . '</p>';
+			return '<p class="bundixo-error">' . esc_html__( 'Bundle not found.', 'bundixo-for-woocommerce' ) . '</p>';
 		}
 
 		if ( ! $bundle['enabled'] ) {

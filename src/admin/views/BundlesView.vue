@@ -38,7 +38,7 @@ const enabledCount = computed( () => bundles.value.filter( ( bundle ) => bundle.
 const hasProducts = computed( () => selectedProducts.value.length > 0 );
 const hasTiers = computed( () => form.discount_tiers.length > 0 );
 const canSave = computed( () => form.name.trim() !== '' && hasProducts.value && hasTiers.value && ! saving.value );
-const shortcode = computed( () => `[pickpack_bundle id="${ form.bundle_id }"]` );
+const shortcode = computed( () => `[bundixo_bundle id="${ form.bundle_id }"]` );
 
 function defaultForm() {
 	return {
@@ -311,7 +311,7 @@ async function deleteBundle() {
 
 async function copyShortcode( bundle ) {
 	try {
-		await navigator.clipboard.writeText( `[pickpack_bundle id="${ bundle.id }"]` );
+		await navigator.clipboard.writeText( `[bundixo_bundle id="${ bundle.id }"]` );
 		shortcodeCopiedFor.value = bundle.id;
 		notify( t( 'copied', 'Shortcode copied!' ) );
 		setTimeout( () => {

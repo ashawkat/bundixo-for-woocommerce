@@ -3,11 +3,11 @@ import BundleWidget from './BundleWidget.vue';
 // Styles are copied to assets/build/frontend.css by scripts/build.mjs and
 // enqueued by WordPress.
 
-document.querySelectorAll( '.pickpack-bundle-wrapper[data-pickpack-payload]' ).forEach( ( el ) => {
+document.querySelectorAll( '.bundixo-bundle-wrapper[data-bundixo-payload]' ).forEach( ( el ) => {
 	let payload = null;
 
 	try {
-		payload = JSON.parse( el.dataset.pickpackPayload );
+		payload = JSON.parse( el.dataset.bundixoPayload );
 	} catch {
 		payload = null;
 	}

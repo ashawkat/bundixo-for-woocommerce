@@ -2,10 +2,10 @@
 /**
  * Plugin settings.
  *
- * @package PickPack
+ * @package Bundixo
  */
 
-namespace PickPack;
+namespace Bundixo;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -19,7 +19,7 @@ class Settings {
 	/**
 	 * Option key.
 	 */
-	const OPTION_KEY = 'pickpack_settings';
+	const OPTION_KEY = 'bundixo_settings';
 
 	/**
 	 * Default settings.
@@ -92,7 +92,7 @@ class Settings {
 		 * @param array $clean    Sanitized settings.
 		 * @param array $settings Raw settings.
 		 */
-		return apply_filters( 'pickpack_sanitize_settings', $clean, $settings );
+		return apply_filters( 'bundixo_sanitize_settings', $clean, $settings );
 	}
 
 	/**

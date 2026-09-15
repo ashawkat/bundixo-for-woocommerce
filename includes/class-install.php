@@ -2,10 +2,10 @@
 /**
  * Installation and database schema handling.
  *
- * @package PickPack
+ * @package Bundixo
  */
 
-namespace PickPack;
+namespace Bundixo;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -20,7 +20,7 @@ class Install {
 	/**
 	 * Option key holding the legacy-migration flag.
 	 */
-	const LEGACY_MIGRATED_OPTION = 'pickpack_legacy_migrated';
+	const LEGACY_MIGRATED_OPTION = 'bundixo_legacy_migrated';
 
 	/**
 	 * Runs on plugin activation.
@@ -34,7 +34,7 @@ class Install {
 			self::rename_pre_rebrand_table();
 			self::run_db_delta();
 
-			update_option( 'pickpack_db_version', PICKPACK_DB_VERSION, false );
+			update_option( 'bundixo_db_version', BUNDIXO_DB_VERSION, false );
 
 			if ( ! get_option( self::LEGACY_MIGRATED_OPTION, false ) ) {
 				self::migrate_legacy();
@@ -57,16 +57,16 @@ class Install {
 			return;
 		}
 
-		$db_version = get_option( 'pickpack_db_version', '0' );
+		$db_version = get_option( 'bundixo_db_version', '0' );
 
-		if ( version_compare( (string) $db_version, PICKPACK_DB_VERSION, '>=' ) ) {
+		if ( version_compare( (string) $db_version, BUNDIXO_DB_VERSION, '>=' ) ) {
 			return;
 		}
 
 		self::rename_pre_rebrand_table();
 		self::run_db_delta();
-		update_option( 'pickpack_db_version', PICKPACK_DB_VERSION, false );
-		self::log( 'Database schema updated to version ' . PICKPACK_DB_VERSION );
+		update_option( 'bundixo_db_version', BUNDIXO_DB_VERSION, false );
+		self::log( 'Database schema updated to version ' . BUNDIXO_DB_VERSION );
 	}
 
 	/**
@@ -81,30 +81,33 @@ class Install {
 	}
 
 	/**
-	 * Renames the bundles table from the pre-rebrand "bundlecraft_bundles"
-	 * name so bundles created before the plugin was renamed to PickPack
-	 * are carried over instead of being orphaned.
+	 * Renames the bundles table from any pre-rebrand name ("bundlecraft_
+	 * bundles", "pickpack_bundles") so bundles created before the plugin
+	 * was renamed to Bundixo are carried over instead of being orphaned.
 	 *
 	 * @return void
 	 */
 	private static function rename_pre_rebrand_table() {
 		global $wpdb;
 
-		$old = preg_replace( '/[^A-Za-z0-9_]/', '', $wpdb->prefix . 'bundlecraft_bundles' );
 		$new = self::table_name();
 
-		if ( ! self::table_exists( $old ) || self::table_exists( $new ) ) {
-			return;
-		}
+		foreach ( [ 'pickpack_bundles', 'bundlecraft_bundles' ] as $legacy ) {
+			$old = preg_replace( '/[^A-Za-z0-9_]/', '', $wpdb->prefix . $legacy );
 
-		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.NotPrepared -- identifiers sanitized via preg_replace above.
-		$renamed = $wpdb->query( "RENAME TABLE {$old} TO {$new}" );
+			if ( ! self::table_exists( $old ) || self::table_exists( $new ) ) {
+				continue;
+			}
 
-		if ( false !== $renamed ) {
-			self::log( 'Renamed the bundles table from the previous plugin name.' );
-			Bundles::flush_cache();
-		} else {
-			self::log( 'Bundles table rename failed: ' . $wpdb->last_error, 'error' );
+			// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.NotPrepared -- identifiers sanitized via preg_replace above.
+			$renamed = $wpdb->query( "RENAME TABLE {$old} TO {$new}" );
+
+			if ( false !== $renamed ) {
+				self::log( 'Renamed the bundles table from the previous plugin name.' );
+				Bundles::flush_cache();
+			} else {
+				self::log( 'Bundles table rename failed: ' . $wpdb->last_error, 'error' );
+			}
 		}
 	}
 
@@ -157,7 +160,7 @@ class Install {
 	public static function table_name() {
 		global $wpdb;
 
-		$raw  = $wpdb->prefix . 'pickpack_bundles';
+		$raw  = $wpdb->prefix . 'bundixo_bundles';
 		$name = preg_replace( '/[^A-Za-z0-9_]/', '', $raw );
 
 		return $name ? $name : $raw;
@@ -182,7 +185,7 @@ class Install {
 		$target = self::table_name();
 
 		// Only import when the new table is still empty, so re-activations
-		// never overwrite bundles created in PickPack.
+		// never overwrite bundles created in Bundixo.
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- sanitized custom table identifier, read-only check.
 		$existing = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$target}" );
 
@@ -238,6 +241,6 @@ class Install {
 			return;
 		}
 
-		wc_get_logger()->log( $level, $message, [ 'source' => 'pickpack-for-woocommerce' ] );
+		wc_get_logger()->log( $level, $message, [ 'source' => 'bundixo-for-woocommerce' ] );
 	}
 }

@@ -3,7 +3,7 @@
  * settings provided through wp_localize_script.
  */
 
-const config = window.pickpackFrontend || {};
+const config = window.bundixoFrontend || {};
 
 export function formatPrice( value ) {
 	const currency = config.currency || {};

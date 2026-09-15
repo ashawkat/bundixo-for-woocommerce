@@ -1,8 +1,8 @@
 /**
- * REST client for the pickpack/v1 namespace.
+ * REST client for the bundixo/v1 namespace.
  */
 
-const config = window.pickpackAdmin || {};
+const config = window.bundixoAdmin || {};
 
 async function request( method, path, body ) {
 	const options = {

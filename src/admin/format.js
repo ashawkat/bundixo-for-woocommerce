@@ -2,7 +2,7 @@
  * Currency and date formatting helpers for the admin app.
  */
 
-const config = window.pickpackAdmin || {};
+const config = window.bundixoAdmin || {};
 
 export function formatPrice( value ) {
 	const currency = config.currency || {};

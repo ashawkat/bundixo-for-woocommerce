@@ -1,5 +1,5 @@
 /**
- * PickPack Gutenberg block.
+ * Bundixo Gutenberg block.
  *
  * Written against the WordPress editor's own libraries (wp.element,
  * wp.blocks, ...) which are provided as externals at build time, so the
@@ -30,7 +30,7 @@ function BundleIcon() {
 
 function BundlePicker( { value, bundles, onChange } ) {
 	const options = [
-		{ value: 0, label: __( 'Select a bundle…', 'pickpack-for-woocommerce' ) },
+		{ value: 0, label: __( 'Select a bundle…', 'bundixo-for-woocommerce' ) },
 		...bundles.map( ( bundle ) => ( {
 			value: bundle.id,
 			label: `${ bundle.name } (ID ${ bundle.id })`,
@@ -40,7 +40,7 @@ function BundlePicker( { value, bundles, onChange } ) {
 	return h( SelectControl, {
 		value: value || 0,
 		options,
-		label: __( 'Bundle', 'pickpack-for-woocommerce' ),
+		label: __( 'Bundle', 'bundixo-for-woocommerce' ),
 		onChange,
 	} );
 }
@@ -50,10 +50,10 @@ function BundlesTable( { onPick } ) {
 	const [ error, setError ] = useState( '' );
 
 	useEffect( () => {
-		apiFetch( { path: '/pickpack/v1/bundles-list' } )
+		apiFetch( { path: '/bundixo/v1/bundles-list' } )
 			.then( ( list ) => setBundles( list ) )
 			.catch( ( err ) => {
-				setError( err.message || __( 'Could not load bundles.', 'pickpack-for-woocommerce' ) );
+				setError( err.message || __( 'Could not load bundles.', 'bundixo-for-woocommerce' ) );
 				setBundles( [] );
 			} );
 	}, [] );
@@ -70,15 +70,15 @@ function BundlesTable( { onPick } ) {
 		return h(
 			'div',
 			{},
-			h( 'p', {}, __( 'You have not created any bundles yet.', 'pickpack-for-woocommerce' ) ),
+			h( 'p', {}, __( 'You have not created any bundles yet.', 'bundixo-for-woocommerce' ) ),
 			h(
 				Button,
 				{
 					variant: 'primary',
-					href: 'admin.php?page=pickpack',
+					href: 'admin.php?page=bundixo',
 					target: '_top',
 				},
-				__( 'Create your first bundle', 'pickpack-for-woocommerce' )
+				__( 'Create your first bundle', 'bundixo-for-woocommerce' )
 			)
 		);
 	}
@@ -98,9 +98,9 @@ function EditBlock( props ) {
 			h(
 				'div',
 				{ style: { padding: '16px' } },
-				h( 'h3', { style: { margin: '0 0 12px' } }, __( 'PickPack', 'pickpack-for-woocommerce' ) ),
+				h( 'h3', { style: { margin: '0 0 12px' } }, __( 'Bundixo', 'bundixo-for-woocommerce' ) ),
 				h( 'p', { style: { margin: '0 0 8px', fontSize: '12px', color: '#757575' } },
-					__( 'Manage bundles in Dashboard → PickPack.', 'pickpack-for-woocommerce' ) )
+					__( 'Manage bundles in Dashboard → Bundixo.', 'bundixo-for-woocommerce' ) )
 			)
 		);
 	}
@@ -112,8 +112,8 @@ function EditBlock( props ) {
 			Placeholder,
 			{
 				icon: h( BundleIcon ),
-				label: __( 'PickPack Bundle', 'pickpack-for-woocommerce' ),
-				instructions: __( 'Choose which bundle to display on this page.', 'pickpack-for-woocommerce' ),
+				label: __( 'Bundixo Bundle', 'bundixo-for-woocommerce' ),
+				instructions: __( 'Choose which bundle to display on this page.', 'bundixo-for-woocommerce' ),
 			},
 			h( BundlesTable, {
 				onPick( id ) {
@@ -124,13 +124,13 @@ function EditBlock( props ) {
 			} )
 		);
 	} else if ( ! ServerSideRender ) {
-		body = h( 'p', {}, __( 'Loading preview…', 'pickpack-for-woocommerce' ) );
+		body = h( 'p', {}, __( 'Loading preview…', 'bundixo-for-woocommerce' ) );
 	} else {
 		body = h(
 			'div',
 			{},
 			h( ServerSideRender, {
-				block: 'pickpack/bundle',
+				block: 'bundixo/bundle',
 				attributes: { bundleId },
 			} ),
 			h(
@@ -139,7 +139,7 @@ function EditBlock( props ) {
 				h(
 					Button,
 					{ variant: 'tertiary', isDestructive: true, onClick: () => setAttributes( { bundleId: 0 } ) },
-					__( 'Change bundle', 'pickpack-for-woocommerce' )
+					__( 'Change bundle', 'bundixo-for-woocommerce' )
 				)
 			)
 		);
@@ -153,16 +153,16 @@ function EditBlock( props ) {
 	);
 }
 
-registerBlockType( 'pickpack/bundle', {
+registerBlockType( 'bundixo/bundle', {
 	apiVersion: 3,
-	title: __( 'PickPack Bundle', 'pickpack-for-woocommerce' ),
+	title: __( 'Bundixo Bundle', 'bundixo-for-woocommerce' ),
 	description: __(
-		'Display a PickPack bundle builder widget with tiered quantity discounts.',
-		'pickpack-for-woocommerce'
+		'Display a Bundixo bundle builder widget with tiered quantity discounts.',
+		'bundixo-for-woocommerce'
 	),
 	icon: BundleIcon,
 	category: 'woocommerce',
-	keywords: [ __( 'bundle' ), 'pickpack', 'woocommerce', __( 'discount' ) ],
+	keywords: [ __( 'bundle' ), 'bundixo', 'woocommerce', __( 'discount' ) ],
 	attributes: {
 		bundleId: {
 			type: 'integer',
@@ -177,7 +177,7 @@ registerBlockType( 'pickpack/bundle', {
 		from: [
 			{
 				type: 'shortcode',
-				tag: 'pickpack_bundle',
+				tag: 'bundixo_bundle',
 				attributes: {
 					bundleId: {
 						type: 'integer',
@@ -188,7 +188,7 @@ registerBlockType( 'pickpack/bundle', {
 					},
 				},
 				transform( attributes ) {
-					return createBlock( 'pickpack/bundle', {
+					return createBlock( 'bundixo/bundle', {
 						bundleId: attributes.bundleId || 0,
 					} );
 				},

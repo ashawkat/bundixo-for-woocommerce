@@ -7,10 +7,10 @@
  * cart, sidecarts, block cart, checkout). The coupon amount is always
  * computed server-side from live product prices.
  *
- * @package PickPack
+ * @package Bundixo
  */
 
-namespace PickPack;
+namespace Bundixo;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -32,27 +32,27 @@ class Cart {
 	/**
 	 * WC session key holding the active bundle discount.
 	 */
-	const SESSION_KEY = 'pickpack_bundle_discount';
+	const SESSION_KEY = 'bundixo_bundle_discount';
 
 	/**
 	 * Cart item meta flagging a product as part of a bundle.
 	 */
-	const ITEM_META = 'pickpack_bundle_item';
+	const ITEM_META = 'bundixo_bundle_item';
 
 	/**
 	 * Cart item meta holding the bundle ID.
 	 */
-	const BUNDLE_META = 'pickpack_bundle_id';
+	const BUNDLE_META = 'bundixo_bundle_id';
 
 	/**
 	 * Prefix for every dynamically generated coupon code.
 	 */
-	const COUPON_PREFIX = 'pickpack_bundle_';
+	const COUPON_PREFIX = 'bundixo_bundle_';
 
 	/**
 	 * Cache group shared by cart lookups.
 	 */
-	const CACHE_GROUP = 'pickpack';
+	const CACHE_GROUP = 'bundixo';
 
 	/**
 	 * Singleton accessor.
@@ -594,7 +594,7 @@ class Cart {
 	public function cleanup_unused_coupons() {
 		global $wpdb;
 
-		$cached = wp_cache_get( 'pickpack_coupons_cleanup', self::CACHE_GROUP );
+		$cached = wp_cache_get( 'bundixo_coupons_cleanup', self::CACHE_GROUP );
 		if ( false !== $cached ) {
 			return $cached;
 		}
@@ -645,7 +645,7 @@ class Cart {
 			'kept'    => $kept,
 		];
 
-		wp_cache_set( 'pickpack_coupons_cleanup', $result, self::CACHE_GROUP, HOUR_IN_SECONDS );
+		wp_cache_set( 'bundixo_coupons_cleanup', $result, self::CACHE_GROUP, HOUR_IN_SECONDS );
 
 		return $result;
 	}
@@ -722,6 +722,6 @@ class Cart {
 			return;
 		}
 
-		wc_get_logger()->log( $level, $message, [ 'source' => 'pickpack-for-woocommerce' ] );
+		wc_get_logger()->log( $level, $message, [ 'source' => 'bundixo-for-woocommerce' ] );
 	}
 }

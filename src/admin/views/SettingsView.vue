@@ -88,7 +88,7 @@ load();
 		<header class="bc-hero">
 			<div>
 				<h1>{{ t( 'settingsTitle', 'Settings' ) }}</h1>
-				<p>{{ t( 'settingsHero', 'Tune how PickPack behaves on your store. Changes save instantly.' ) }}</p>
+				<p>{{ t( 'settingsHero', 'Tune how Bundixo behaves on your store. Changes save instantly.' ) }}</p>
 			</div>
 			<transition name="bc-pop" mode="out-in">
 				<span v-if="savedPulse" key="saved" class="bc-hero__state bc-hero__state--saved">✓ {{ t( 'stateSaved', 'All changes saved' ) }}</span>
@@ -168,7 +168,7 @@ load();
 				<Switch v-model="settings.enable_logging" :label="t( 'enableLogging', 'Enable debug logging' )" @update:model-value="scheduleSave" />
 			</div>
 
-			<p class="bc-settings__footnote">{{ t( 'loggingHint', 'When enabled, PickPack writes diagnostic messages to the WooCommerce log (WooCommerce → Status → Logs).' ) }}</p>
+			<p class="bc-settings__footnote">{{ t( 'loggingHint', 'When enabled, Bundixo writes diagnostic messages to the WooCommerce log (WooCommerce → Status → Logs).' ) }}</p>
 		</section>
 	</div>
 </template>

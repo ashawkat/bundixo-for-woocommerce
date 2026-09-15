@@ -2,10 +2,10 @@
 /**
  * Storefront rendering and product payload building.
  *
- * @package PickPack
+ * @package Bundixo
  */
 
-namespace PickPack;
+namespace Bundixo;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -38,7 +38,7 @@ class Frontend {
 		 * Fires when a bundle widget has just been rendered, so the plugin
 		 * can enqueue its assets even outside the standard detection.
 		 */
-		do_action( 'pickpack_force_frontend_assets' );
+		do_action( 'bundixo_force_frontend_assets' );
 	}
 
 	/**
@@ -63,7 +63,7 @@ class Frontend {
 		$payload = self::bundle_payload( $bundle );
 
 		ob_start();
-		include PICKPACK_PLUGIN_DIR . 'templates/bundle-display.php';
+		include BUNDIXO_PLUGIN_DIR . 'templates/bundle-display.php';
 		return ob_get_clean();
 	}
 
@@ -89,7 +89,7 @@ class Frontend {
 		}
 
 		ob_start();
-		include PICKPACK_PLUGIN_DIR . 'templates/editor-preview.php';
+		include BUNDIXO_PLUGIN_DIR . 'templates/editor-preview.php';
 		return ob_get_clean();
 	}
 

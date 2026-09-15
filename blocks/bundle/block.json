@@ -1,12 +1,12 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "pickpack/bundle",
-	"title": "PickPack Bundle",
+	"name": "bundixo/bundle",
+	"title": "Bundixo Bundle",
 	"category": "woocommerce",
-	"description": "Display a PickPack bundle builder widget with tiered quantity discounts.",
-	"keywords": [ "bundle", "pickpack", "woocommerce", "discount" ],
-	"textdomain": "pickpack-for-woocommerce",
+	"description": "Display a Bundixo bundle builder widget with tiered quantity discounts.",
+	"keywords": [ "bundle", "bundixo", "woocommerce", "discount" ],
+	"textdomain": "bundixo-for-woocommerce",
 	"attributes": {
 		"bundleId": {
 			"type": "integer",
@@ -18,6 +18,6 @@
 		"customClassName": false,
 		"multiple": true
 	},
-	"editorScript": "pickpack-block-editor",
-	"editorStyle": "pickpack-frontend"
+	"editorScript": "bundixo-block-editor",
+	"editorStyle": "bundixo-frontend"
 }
