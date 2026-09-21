@@ -4,7 +4,7 @@ Tags: woocommerce, bundle, product bundles, discount, quantity discount
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,10 @@ Bundle discounts are implemented as dynamically created WooCommerce coupons, res
 
 Bundixo does not send data to any third-party service. All processing happens on your own site.
 
+**Development and source code**
+
+The JavaScript and CSS files in `assets/build/` are generated (minified) bundles. The human-readable source code — a Vue 3 application built with [Vite](https://vitejs.dev/) — is maintained in the public repository at https://github.com/ashawkat/bundixo-for-woocommerce (see the `src/` directory). Clone the repository and run `npm install && npm run build` to regenerate the bundles.
+
 == Installation ==
 
 1. Install WooCommerce (required) and Bundixo through the Plugins screen, then activate Bundixo.
@@ -74,6 +78,10 @@ A daily cleanup task deletes bundle coupons that were created more than 24 hours
 
 Yes. On activation, Bundixo migrates bundles and settings from the legacy table automatically.
 
+= Where is the source code for the JavaScript and CSS bundles? =
+
+The files in `assets/build/` are generated with Vite from human-readable Vue 3 source. The full unminified source and build tooling are publicly available at https://github.com/ashawkat/bundixo-for-woocommerce — the source lives in the `src/` directory, and running `npm install && npm run build` in the repository root regenerates the bundles. The `src/` directory is also included in the plugin package.
+
 == Screenshots ==
 
 1. Bundle editor with product picker, drag-and-drop ordering, and a live preview of the storefront widget.
@@ -84,10 +92,20 @@ Yes. On activation, Bundixo migrates bundles and settings from the legacy table 
 
 == Changelog ==
 
+= 1.0.2 =
+* Added a public source repository link and build instructions to the readme (WordPress.org Guideline 4: human-readable code).
+* Included the unminified `src/` directory in the plugin package alongside the generated bundles.
+
+= 1.0.1 =
+* Rebranded the plugin to Bundixo for WooCommerce.
+
 = 1.0.0 =
 * Initial release: bundle builder with tiered discounts, storefront widget, analytics dashboard, diagnostics, and REST API back end.
 
 == Upgrade Notice ==
+
+= 1.0.2 =
+Documentation update: source code repository link and build instructions.
 
 = 1.0.0 =
 Initial release.

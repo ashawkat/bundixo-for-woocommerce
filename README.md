@@ -23,6 +23,16 @@ Build product bundle promotions with tiered quantity discounts, a modern Vue-pow
 
 > **Roadmap:** first-class widgets for Elementor, Bricks, and other page builders are coming soon.
 
+## Development
+
+The JavaScript and CSS in `assets/build/` are generated bundles — the human-readable source lives in [`src/`](src/). This repository is the canonical public source.
+
+```bash
+npm install
+npm run build   # regenerates assets/build via Vite (scripts/build.mjs)
+npm run dev     # watch mode
+```
+
 ## Screenshots
 
 | | |
