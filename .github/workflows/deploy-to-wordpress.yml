@@ -1,14 +1,24 @@
 name: Deploy to WordPress.org
 
-# Publishes a tagged release to the WordPress.org plugin repository:
-# commits the plugin to `trunk` and creates a matching copy in `tags/<version>`.
+# Publishes a release to the WordPress.org plugin repository:
+# commits the plugin to `trunk` and copies it to `tags/<version>`.
+# The version is taken from the release's tag (a leading "v" is stripped,
+# so tag v1.2.3 deploys as 1.2.3). One release = one deploy.
 on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Plugin version to deploy when running manually (e.g. 1.0.3). Must match the readme.txt stable tag."
+        required: true
 
 permissions:
   contents: read
+
+concurrency:
+  group: wporg-deploy
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -20,8 +30,7 @@ jobs:
 
       - name: Deploy to WordPress.org
         uses: 10up/action-wordpress-plugin-deploy@stable
-        with:
-          slug: bundixo-for-woocommerce
         env:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          VERSION: ${{ inputs.version }}
