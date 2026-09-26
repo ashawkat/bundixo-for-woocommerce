@@ -4,7 +4,7 @@ Tags: woocommerce, bundle, product bundles, discount, quantity discount
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -91,6 +91,9 @@ The files in `assets/build/` are generated with Vite from human-readable Vue 3 s
 5. Native Gutenberg block: insert the "Bundixo Bundle" block with an in-editor preview.
 
 == Changelog ==
+
+= 1.0.3 =
+* Removed the `.wordpress-org` assets folder from the distribution package (plugin review feedback); screenshots and banners remain available in the public repository.
 
 = 1.0.2 =
 * Added a public source repository link and build instructions to the readme (WordPress.org Guideline 4: human-readable code).
