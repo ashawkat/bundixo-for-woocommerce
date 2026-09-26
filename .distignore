@@ -1,16 +1,15 @@
-# Files excluded from the distribution archive.
+# Files excluded from the distribution archive (wp.org deploy).
+# NOTE: src/, scripts/ and package*.json are deliberately KEPT in the package —
+# they are the human-readable source referenced by the readme (wp.org Guideline 4).
 .git
 .github
 .wordpress-org
 node_modules
-scripts
-src
-package.json
-package-lock.json
 vite.config.js
 .distignore
 .gitignore
 README.md
 CHANGELOG.md
 *.log
+*.zip
 .DS_Store

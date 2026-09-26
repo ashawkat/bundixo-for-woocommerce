@@ -1,0 +1,28 @@
+name: Update WordPress.org assets
+
+# Syncs .wordpress-org/ (banner, icons, screenshots) to the `assets/` directory
+# of the WordPress.org plugin repository — these power the directory listing,
+# not the plugin itself.
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".wordpress-org/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  update-assets:
+    name: Sync directory assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: WordPress.org plugin asset update
+        uses: 10up/action-wordpress-plugin-asset-update@stable
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
