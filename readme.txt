@@ -1,10 +1,10 @@
 === Bundixo for WooCommerce ===
-Contributors: betatech, ashawkat
+Contributors: betatech, adnanshawkat
 Tags: woocommerce, bundle, product bundles, discount, quantity discount
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -92,6 +92,9 @@ The files in `assets/build/` are generated with Vite from human-readable Vue 3 s
 
 == Changelog ==
 
+= 1.0.4 =
+* Corrected the WordPress.org contributor handle in the readme.
+
 = 1.0.3 =
 * Removed the `.wordpress-org` assets folder from the distribution package (plugin review feedback); screenshots and banners remain available in the public repository.
 
@@ -106,6 +109,9 @@ The files in `assets/build/` are generated with Vite from human-readable Vue 3 s
 * Initial release: bundle builder with tiered discounts, storefront widget, analytics dashboard, diagnostics, and REST API back end.
 
 == Upgrade Notice ==
+
+= 1.0.4 =
+Readme fix: corrected the contributor handle.
 
 = 1.0.2 =
 Documentation update: source code repository link and build instructions.

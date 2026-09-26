@@ -6,7 +6,7 @@
 
 Build product bundle promotions with tiered quantity discounts, a modern Vue-powered admin, analytics, and a customer-facing bundle builder widget.
 
-- **Contributors:** ashawkat
+- **Contributors:** adnanshawkat
 - **Author:** Betatech
 - **Requires:** WordPress 6.0+, WooCommerce 7.0+, PHP 7.4+
 - **License:** GPL-2.0-or-later
