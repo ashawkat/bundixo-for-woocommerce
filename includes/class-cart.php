@@ -30,6 +30,16 @@ class Cart {
 	private static $instance = null;
 
 	/**
+	 * Re-entrancy guard for the coupon re-apply cycle. WC_Cart fires
+	 * woocommerce_after_calculate_totals from inside calculate_totals(),
+	 * so re-applying a coupon and recalculating from those hooks without a
+	 * guard recurses until the stack limit when the coupon cannot apply.
+	 *
+	 * @var bool
+	 */
+	private $applying_session_coupon = false;
+
+	/**
 	 * WC session key holding the active bundle discount.
 	 */
 	const SESSION_KEY = 'bundixo_bundle_discount';
@@ -87,6 +97,12 @@ class Cart {
 		add_filter( 'woocommerce_coupon_is_valid', [ $this, 'validate_bundle_coupon' ], 10, 3 );
 		add_filter( 'woocommerce_coupon_error', [ $this, 'suppress_bundle_coupon_error' ], 10, 3 );
 		add_filter( 'woocommerce_coupon_is_valid_for_cart', [ $this, 'validate_bundle_coupon_for_cart' ], 10, 2 );
+
+		// Coexist with "individual use" coupons (e.g. store-wide auto-applied
+		// coupons): never reject ours next to them, and keep ours on the cart
+		// when an individual-use coupon is applied afterwards.
+		add_filter( 'woocommerce_apply_with_individual_use_coupon', [ $this, 'allow_with_individual_use_coupon' ], 10, 2 );
+		add_filter( 'woocommerce_apply_individual_use_coupon', [ $this, 'keep_bundle_coupons_for_individual_use' ], 10, 3 );
 
 		// Scrub coupon error notices as soon as they hit the session.
 		add_action( 'woocommerce_before_checkout_process', [ $this, 'remove_bundle_coupon_notices' ], 5 );
@@ -267,6 +283,10 @@ class Cart {
 			return;
 		}
 
+		if ( $this->applying_session_coupon ) {
+			return;
+		}
+
 		$data = $this->get_session_data();
 
 		if ( ! $data ) {
@@ -289,9 +309,22 @@ class Cart {
 			return;
 		}
 
-		WC()->cart->apply_coupon( $coupon_code );
-		$this->remove_bundle_coupon_notices();
-		WC()->cart->calculate_totals();
+		$this->applying_session_coupon = true;
+
+		try {
+			if ( WC()->cart->apply_coupon( $coupon_code ) ) {
+				$this->remove_bundle_coupon_notices();
+				WC()->cart->calculate_totals();
+			} else {
+				// The coupon cannot apply to this cart anymore (contents
+				// changed, another plugin rejected it). Drop the reference
+				// instead of retrying on every hook and page load.
+				$this->set_session_data( [] );
+				$this->remove_bundle_coupon_notices();
+			}
+		} finally {
+			$this->applying_session_coupon = false;
+		}
 	}
 
 	/**
@@ -446,6 +479,47 @@ class Cart {
 	}
 
 	/**
+	 * Lets our dynamic coupons be applied while an "individual use" coupon
+	 * is already on the cart, instead of being rejected with a visible
+	 * "cannot be used in conjunction with other coupons" error.
+	 *
+	 * @param bool             $allow             Default rejection bypass.
+	 * @param \WC_Coupon       $new_coupon        Coupon being applied.
+	 * @param \WC_Coupon|null  $individual_coupon Individual-use coupon on the cart.
+	 * @return bool
+	 */
+	public function allow_with_individual_use_coupon( $allow, $new_coupon, $individual_coupon = null ) {
+		unset( $individual_coupon );
+
+		if ( $this->is_bundle_coupon_code( $this->coupon_code_from( $new_coupon ) ) ) {
+			return true;
+		}
+
+		return $allow;
+	}
+
+	/**
+	 * Keeps our dynamic coupons on the cart when an "individual use" coupon
+	 * is applied afterwards (core removes every other coupon in that case).
+	 *
+	 * @param string[]      $keep              Coupon codes to preserve.
+	 * @param \WC_Coupon    $new_coupon        Individual-use coupon being applied.
+	 * @param string[]      $applied_coupons   Coupons currently on the cart.
+	 * @return string[]
+	 */
+	public function keep_bundle_coupons_for_individual_use( $keep, $new_coupon, $applied_coupons = [] ) {
+		unset( $new_coupon );
+
+		foreach ( (array) $applied_coupons as $code ) {
+			if ( $this->is_bundle_coupon_code( (string) $code ) ) {
+				$keep[] = $code;
+			}
+		}
+
+		return $keep;
+	}
+
+	/**
 	 * Removes notices referencing our dynamic coupons from the session.
 	 *
 	 * @return void
@@ -514,11 +588,21 @@ class Cart {
 	 * Re-applies the session coupon after totals are calculated if it
 	 * somehow got dropped along the way.
 	 *
+	 * Runs inside woocommerce_after_calculate_totals, so it must never
+	 * blindly recalculate: the guard and the apply_coupon() result keep
+	 * the verify → apply → calculate → verify cycle from recursing when
+	 * the coupon cannot apply (e.g. after the shopper removed bundle
+	 * items and WooCommerce dropped the coupon as invalid).
+	 *
 	 * @param \WC_Cart $cart Cart instance.
 	 * @return void
 	 */
 	public function verify_coupon_applied( $cart ) {
 		if ( ! function_exists( 'WC' ) || ! WC()->session || ! $cart ) {
+			return;
+		}
+
+		if ( $this->applying_session_coupon ) {
 			return;
 		}
 
@@ -531,6 +615,12 @@ class Cart {
 		$coupon_code = $data['coupon_code'];
 		$applied     = $cart->get_applied_coupons();
 
+		// WooCommerce stores applied codes lowercased while the session
+		// keeps the generated case, so compare through the same formatter.
+		if ( function_exists( 'wc_format_coupon_code' ) ) {
+			$coupon_code = wc_format_coupon_code( $coupon_code );
+		}
+
 		if ( in_array( $coupon_code, $applied, true ) ) {
 			return;
 		}
@@ -539,9 +629,24 @@ class Cart {
 			return;
 		}
 
-		if ( ! $cart->has_discount( $coupon_code ) ) {
-			$cart->apply_coupon( $coupon_code );
-			$cart->calculate_totals();
+		if ( $cart->has_discount( $coupon_code ) ) {
+			return;
+		}
+
+		$this->applying_session_coupon = true;
+
+		try {
+			if ( $cart->apply_coupon( $coupon_code ) ) {
+				$this->remove_bundle_coupon_notices();
+				$cart->calculate_totals();
+			} else {
+				// Give up on this coupon instead of re-trying on every
+				// calculate_totals() pass, which never terminates.
+				$this->set_session_data( [] );
+				$this->remove_bundle_coupon_notices();
+			}
+		} finally {
+			$this->applying_session_coupon = false;
 		}
 	}
 

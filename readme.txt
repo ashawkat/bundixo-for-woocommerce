@@ -4,11 +4,11 @@ Tags: woocommerce, bundle, product bundles, discount, quantity discount
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.4
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Build product bundle promotions with tiered quantity discounts, a modern admin app, analytics, and a customer-facing bundle builder widget.
+Build bundle promotions with tiered quantity discounts and automatic frequently-bought-together offers on product pages.
 
 == Description ==
 
@@ -18,6 +18,10 @@ Place bundles anywhere with the **native Gutenberg block** (with an in-editor pr
 
 **Highlights**
 
+* Frequently bought together: show any bundle automatically on product pages — right after the Add to Cart button. The viewed product is the anchor: pre-selected, added at full price, never counting toward the discount tiers.
+* Place by rule: follow the bundle's own products, pin to additional product pages, or show on every product page — tailored placements always win over catch-alls.
+* Recommended mode: offers with no fixed product list that fill automatically from each viewed product's cross-sells (fallbacks: upsells, same-category products). No external service — all data stays on your store.
+* Compact FBT layout (checkbox rows, live bundle price and savings) or the full bundle builder; pick per bundle, and force either with the `style` shortcode attribute or block option.
 * Tiered quantity discounts: "Buy 2+ get 10% off, 3+ get 15% off…" with a live progress bar for shoppers.
 * Quantity mode with per-product steppers or a simple select-all checkbox mode.
 * Full control over texts, button label, and five theme colors — with a live preview in the editor.
@@ -60,7 +64,7 @@ Server-side, always. When a shopper changes their selection the widget asks the 
 
 = How do I place a bundle on a page? =
 
-Two ways: insert the **Bundixo Bundle** block in the Gutenberg editor (it shows an in-editor preview), or use the classic shortcode `[bundixo_bundle id="123"]`. Pasting the shortcode into the block editor converts it into the block automatically.
+Three ways: insert the **Bundixo Bundle** block in the Gutenberg editor (it shows an in-editor preview), use the classic shortcode `[bundixo_bundle id="123"]`, or — new in 1.1.0 — let Bundixo place it for you: open the bundle's **Placement** tab, enable "Show automatically on product pages", and pick a position (after the Add to Cart button, before the tabs, or after related products). The bundle then appears on the product pages of its own products, plus any extra products you assign, with the viewed product pre-selected. Pasting the shortcode into the block editor converts it into the block automatically.
 
 = Does it work with variable products? =
 
@@ -89,8 +93,23 @@ The files in `assets/build/` are generated with Vite from human-readable Vue 3 s
 3. Analytics dashboard: coupons, revenue, orders, cart share, and top bundles with date-range filtering.
 4. Storefront bundle widget: quantity steppers, unlocked tiers, and a live summary with the discount applied.
 5. Native Gutenberg block: insert the "Bundixo Bundle" block with an in-editor preview.
+6. Frequently bought together on a product page: the viewed product is the pre-selected anchor at full price, recommended products unlock the tiered discount, with live bundle price and savings.
+7. Placement tab: where the offer appears (follow the bundle's products, every product page, or pinned pages) and whether the offer uses the bundle's products or recommended ones.
 
 == Changelog ==
+
+= 1.1.0 =
+* New: frequently bought together — automatic bundle placement on single product pages (after the Add to Cart button, before the tabs, or after related products).
+* New "Placement" tab per bundle: auto-display toggle, position, own-product pages, extra product pages, and widget layout.
+* New compact FBT widget layout with the viewed product pre-selected, tier progress, and live bundle price/savings.
+* Anchor pricing: on product pages the viewed product is always the anchor — pre-selected, full price, never counting toward tiers.
+* New placement rules: "every product page" catch-all, and a recommended mode that fills the offer from the viewed product's cross-sells (fallbacks: upsells, same-category).
+* Clearer Placement tab with a "Where should this offer appear?" section explaining each rule.
+* Shortcode `style` attribute (`[bundixo_bundle id="123" style="compact"]`) and a matching Gutenberg block layout option.
+* A bundle renders only once per page when automatic placement and a manual shortcode overlap (filterable via `bundixo_allow_duplicate_renders`).
+* Fixed: guest carts built through the widget were lost on the next page load because the WooCommerce session cookie was never sent with the add-to-cart response.
+* Fixed: critical error when removing cart items left the session referencing a bundle coupon that could no longer be applied — coupon re-apply is now re-entrancy-guarded and drops stale references.
+* Database schema 1.3: adds the `placement` column. Existing bundles keep manual-only placement.
 
 = 1.0.4 =
 * Corrected the WordPress.org contributor handle in the readme.
@@ -109,6 +128,9 @@ The files in `assets/build/` are generated with Vite from human-readable Vue 3 s
 * Initial release: bundle builder with tiered discounts, storefront widget, analytics dashboard, diagnostics, and REST API back end.
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+New: show any bundle automatically on product pages as a "frequently bought together" offer. Existing bundles are unaffected until you enable it.
 
 = 1.0.4 =
 Readme fix: corrected the contributor handle.

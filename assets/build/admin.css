@@ -448,7 +448,7 @@
 
 .bc-tabs {
 	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
 	background: #f0f0f1;
 	border-radius: 10px;
 	padding: 3px;
@@ -1426,6 +1426,42 @@
 .bc-switch:focus-visible {
 	outline: 2px solid #4caf50;
 	outline-offset: 2px;
+}
+
+/* Placement tab: auto-position picker */
+
+.bc-placement-positions {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.bc-placement-position {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	border: 1px solid #e2e4e7;
+	border-radius: 10px;
+	padding: 10px 14px;
+	background: #fff;
+	cursor: pointer;
+	font-weight: 500;
+	transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bc-placement-position:hover {
+	border-color: #6366f1;
+}
+
+.bc-placement-position--active {
+	border-color: #6366f1;
+	background: #f5f4ff;
+	box-shadow: 0 0 0 1px #6366f1;
+}
+
+.bc-placement-position input {
+	accent-color: #6366f1;
+	margin: 0;
 }
 
 .bc-settings__footnote {

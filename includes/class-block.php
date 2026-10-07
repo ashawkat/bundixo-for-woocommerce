@@ -92,7 +92,14 @@ class Block {
 			return '';
 		}
 
-		return Frontend::render_bundle( $bundle );
+		$args  = [];
+		$style = isset( $attributes['layout'] ) ? strtolower( sanitize_key( $attributes['layout'] ) ) : '';
+
+		if ( in_array( $style, [ 'full', 'compact' ], true ) ) {
+			$args['layout'] = $style;
+		}
+
+		return Frontend::render_bundle( $bundle, $args );
 	}
 
 	/**

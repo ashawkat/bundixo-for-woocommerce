@@ -11,6 +11,10 @@
 		"bundleId": {
 			"type": "integer",
 			"default": 0
+		},
+		"layout": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"supports": {

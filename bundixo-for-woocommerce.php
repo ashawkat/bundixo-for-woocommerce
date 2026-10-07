@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Bundixo for WooCommerce
  * Plugin URI: https://github.com/ashawkat/bundixo-for-woocommerce
- * Description: Build product bundle promotions with tiered quantity discounts — Gutenberg block, shortcode, Vue-powered admin, analytics, and a customer-facing bundle builder widget.
- * Version: 1.0.4
+ * Description: Build product bundle promotions with tiered quantity discounts — Gutenberg block, shortcode, automatic frequently-bought-together placement on product pages, Vue-powered admin, analytics, and a customer-facing bundle builder widget.
+ * Version: 1.1.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Betatech
@@ -14,7 +14,7 @@
  * Domain Path: /languages
  * Requires Plugins: woocommerce
  * WC requires at least: 7.0
- * WC tested up to: 9.4
+ * WC tested up to: 11.1
  *
  * @package Bundixo
  */
@@ -23,8 +23,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'BUNDIXO_VERSION', '1.0.4' );
-define( 'BUNDIXO_DB_VERSION', '1.2' );
+define( 'BUNDIXO_VERSION', '1.1.0' );
+define( 'BUNDIXO_DB_VERSION', '1.3' );
 define( 'BUNDIXO_PLUGIN_FILE', __FILE__ );
 define( 'BUNDIXO_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BUNDIXO_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

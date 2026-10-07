@@ -640,6 +640,13 @@ class Rest {
 			return new \WP_Error( 'bundixo_cart_missing', __( 'Cart is not available.', 'bundixo-for-woocommerce' ), [ 'status' => 500 ] );
 		}
 
+		// Guests get their WooCommerce session only through the cookie sent
+		// with this response; without it the freshly built cart would be
+		// lost on the next page load.
+		if ( is_callable( [ WC()->session, 'set_customer_session_cookie' ] ) ) {
+			WC()->session->set_customer_session_cookie( true );
+		}
+
 		// Remove any previous bundle coupon so bundles never mix.
 		Cart::instance()->clear_session_bundle();
 
@@ -787,6 +794,7 @@ class Rest {
 					'product_id'   => [ 'type' => 'integer', 'minimum' => 1 ],
 					'variation_id' => [ 'type' => 'integer', 'minimum' => 0 ],
 					'quantity'     => [ 'type' => 'integer', 'minimum' => 1 ],
+					'no_discount'  => [ 'type' => 'boolean', 'default' => false ],
 				],
 			],
 			'sanitize_callback' => [ $this, 'sanitize_items' ],
@@ -825,6 +833,7 @@ class Rest {
 				'product_id'   => absint( $item['product_id'] ?? 0 ),
 				'variation_id' => absint( $item['variation_id'] ?? 0 ),
 				'quantity'     => max( 1, absint( $item['quantity'] ?? 1 ) ),
+				'no_discount'  => ! empty( filter_var( $item['no_discount'] ?? false, FILTER_VALIDATE_BOOLEAN ) ),
 			];
 		}
 
@@ -898,6 +907,10 @@ class Rest {
 			if ( isset( $request[ $key ] ) ) {
 				$data[ $key ] = $request[ $key ];
 			}
+		}
+
+		if ( isset( $request['placement'] ) ) {
+			$data['placement'] = $request['placement'];
 		}
 
 		if ( isset( $request['bundle_id'] ) ) {
@@ -1002,6 +1015,29 @@ class Rest {
 				],
 				'sanitize_callback' => [ Bundles::class, 'sanitize_tiers' ],
 			],
+			'placement'              => [
+				'type'              => 'object',
+				'required'          => false,
+				'properties'        => [
+					'auto_display'      => [ 'type' => 'boolean' ],
+					'position'          => [
+						'type' => 'string',
+						'enum' => [ 'after_add_to_cart', 'before_tabs', 'after_related' ],
+					],
+					'include_products'  => [ 'type' => 'boolean' ],
+					'extra_product_ids' => [
+						'type'  => 'array',
+						'items' => [ 'type' => 'integer', 'minimum' => 1 ],
+					],
+					'all_products'      => [ 'type' => 'boolean' ],
+					'product_source'    => [
+						'type' => 'string',
+						'enum' => [ 'bundle', 'recommended' ],
+					],
+					'layout'            => [ 'type' => 'string', 'enum' => [ 'full', 'compact' ] ],
+				],
+				'sanitize_callback' => [ Bundles::class, 'sanitize_placement' ],
+			],
 		];
 	}
 
@@ -1033,6 +1069,7 @@ class Rest {
 				'product_id'   => $item['product_id'],
 				'variation_id' => $item['variation_id'],
 				'quantity'     => $quantity,
+				'no_discount'  => ! empty( $item['no_discount'] ),
 			];
 		}
 
@@ -1067,16 +1104,19 @@ class Rest {
 
 	/**
 	 * Computes the authoritative quote: per-line pricing from live product
-	 * objects, the applicable tier, and the discount it unlocks.
+	 * objects, the applicable tier, and the discount it unlocks. Items
+	 * flagged no_discount (the injected "this item" product on a PDP) are
+	 * added at full price and never count toward the tiers.
 	 *
 	 * @param array $bundle Bundle record.
 	 * @param array $items  Normalized items.
 	 * @return array
 	 */
 	private function calculate_quote( array $bundle, array $items ) {
-		$products  = [];
-		$subtotal  = 0.0;
-		$item_count = 0;
+		$products     = [];
+		$subtotal     = 0.0;
+		$discountable = 0.0;
+		$item_count   = 0;
 
 		foreach ( $items as $item ) {
 			$actual_id = $item['variation_id'] ? $item['variation_id'] : $item['product_id'];
@@ -1089,6 +1129,7 @@ class Rest {
 			$price      = (float) $product->get_price();
 			$quantity   = $item['quantity'];
 			$line_total = $price * $quantity;
+			$no_discount = ! empty( $item['no_discount'] );
 
 			$products[] = [
 				'product_id'   => $item['product_id'],
@@ -1097,10 +1138,15 @@ class Rest {
 				'price'        => $price,
 				'quantity'     => $quantity,
 				'line_total'   => $line_total,
+				'no_discount'  => $no_discount,
 			];
 
-			$subtotal   += $line_total;
-			$item_count += $quantity;
+			$subtotal += $line_total;
+
+			if ( ! $no_discount ) {
+				$discountable += $line_total;
+				$item_count   += $quantity;
+			}
 		}
 
 		if ( empty( $products ) ) {
@@ -1117,7 +1163,7 @@ class Rest {
 
 		$tier = Bundles::applicable_tier( $bundle, $item_count );
 
-		$discount_amount = ( $subtotal * (float) $tier['discount'] ) / 100;
+		$discount_amount = ( $discountable * (float) $tier['discount'] ) / 100;
 
 		return [
 			'products'            => $products,

@@ -59,6 +59,9 @@ class Plugin {
 
 		Cart::instance();
 
+		$placement = new Placement();
+		$placement->register_hooks();
+
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
 		add_action( 'admin_menu', [ $this, 'register_admin_menu' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
@@ -309,6 +312,12 @@ class Plugin {
 			}
 		}
 
+		// Auto-placed bundles render on product pages regardless of the
+		// page content, so detect them by matching the viewed product.
+		if ( ! $has_bundle && function_exists( 'is_product' ) && is_product() ) {
+			$has_bundle = Placement::has_match( get_the_ID() );
+		}
+
 		/**
 		 * Filters whether the bundle widget assets should load on this request.
 		 *
@@ -492,7 +501,30 @@ class Plugin {
 			'backToList'        => __( 'All bundles', 'bundixo-for-woocommerce' ),
 			'tabProducts'       => __( 'Products', 'bundixo-for-woocommerce' ),
 			'tabDiscounts'      => __( 'Discounts', 'bundixo-for-woocommerce' ),
+			'tabPlacement'      => __( 'Placement', 'bundixo-for-woocommerce' ),
 			'tabDesign'         => __( 'Design', 'bundixo-for-woocommerce' ),
+			'autoDisplay'       => __( 'Show automatically on product pages', 'bundixo-for-woocommerce' ),
+			'autoDisplayHint'   => __( 'Insert this bundle on single product pages as a "frequently bought together" offer. The product being viewed is the anchor: pre-selected, added at full price, and never counting toward the discount tiers — only the extra products the customer picks unlock discounts.', 'bundixo-for-woocommerce' ),
+			'positionLabel'     => __( 'Position', 'bundixo-for-woocommerce' ),
+			'posAfterAddToCart' => __( 'After Add to Cart button', 'bundixo-for-woocommerce' ),
+			'posBeforeTabs'     => __( 'Before product tabs', 'bundixo-for-woocommerce' ),
+			'posAfterRelated'   => __( 'After related products', 'bundixo-for-woocommerce' ),
+			'whereLabel'        => __( 'Where should this offer appear?', 'bundixo-for-woocommerce' ),
+			'showOnProducts'    => __( 'Follow the bundle\'s products', 'bundixo-for-woocommerce' ),
+			'showOnProductsHint' => __( 'The offer follows the Products tab: it appears on the page of every product in this bundle, and disappears from a page the moment you remove that product from the bundle.', 'bundixo-for-woocommerce' ),
+			'showEverywhere'    => __( 'Show on every product page', 'bundixo-for-woocommerce' ),
+			'showEverywhereHint' => __( 'A catch-all: the offer appears on all single product pages, regardless of the products in the bundle.', 'bundixo-for-woocommerce' ),
+			'extraProducts'     => __( 'Pin to additional product pages', 'bundixo-for-woocommerce' ),
+			'extraProductsHint' => __( 'Show this offer on products that are not part of the bundle. Their pages display it with the viewed product as the anchor at full price.', 'bundixo-for-woocommerce' ),
+			'anyRuleNote'       => __( 'The offer appears wherever any of the rules above matches. Tailored rules win over "every product page" when several bundles match.', 'bundixo-for-woocommerce' ),
+			'sourceLabel'       => __( 'Products in the offer', 'bundixo-for-woocommerce' ),
+			'sourceBundle'      => __( 'The bundle\'s own products', 'bundixo-for-woocommerce' ),
+			'sourceRecommended' => __( 'Recommended for the viewed product', 'bundixo-for-woocommerce' ),
+			'sourceRecommendedHint' => __( 'No fixed list: on every product page the offer fills automatically with that product\'s cross-sell products, falling back to upsells, then to same-category products. Setup: WooCommerce → edit product → Linked Products. The Products tab is ignored in this mode.', 'bundixo-for-woocommerce' ),
+			'layoutLabel'       => __( 'Widget layout', 'bundixo-for-woocommerce' ),
+			'layoutCompact'     => __( 'Compact (frequently bought together)', 'bundixo-for-woocommerce' ),
+			'layoutFull'        => __( 'Full builder', 'bundixo-for-woocommerce' ),
+			'manualNote'        => __( 'The shortcode and block keep working everywhere, regardless of these automatic rules.', 'bundixo-for-woocommerce' ),
 			'livePreview'       => __( 'Live preview', 'bundixo-for-woocommerce' ),
 			'previewNote'       => __( 'A rough sketch of the storefront widget — the real one inherits your theme styles.', 'bundixo-for-woocommerce' ),
 			'tierItemsOrMore'   => __( 'items +', 'bundixo-for-woocommerce' ),
@@ -650,8 +682,13 @@ class Plugin {
 			/* translators: %d: maximum quantity */
 			'maxReached'    => __( 'Maximum of %d items per bundle reached.', 'bundixo-for-woocommerce' ),
 			'addError'      => __( 'Could not add the bundle to your cart.', 'bundixo-for-woocommerce' ),
+			'someNotAdded'  => __( 'Some items could not be added to the cart.', 'bundixo-for-woocommerce' ),
 			'viewCart'      => __( 'View Cart', 'bundixo-for-woocommerce' ),
 			'outOfStock'    => __( 'Out of stock', 'bundixo-for-woocommerce' ),
+			'addSelected'   => __( 'Add Selected to Cart', 'bundixo-for-woocommerce' ),
+			'youSave'       => __( 'You save', 'bundixo-for-woocommerce' ),
+			'thisItem'      => __( 'This item', 'bundixo-for-woocommerce' ),
+			'bundlePrice'   => __( 'Bundle price', 'bundixo-for-woocommerce' ),
 		];
 	}
 }

@@ -23,11 +23,19 @@ const searchResults = ref( [] );
 const searching = ref( false );
 let searchTimer = null;
 
+// Placement: extra product pages this bundle should appear on.
+const extraProducts = ref( [] );
+const extraSearchQuery = ref( '' );
+const extraSearchResults = ref( [] );
+const extraSearching = ref( false );
+let extraSearchTimer = null;
+
 const dragIndex = ref( null );
 
 const tabs = [
 	{ id: 'products', key: 'tabProducts', fallback: 'Products' },
 	{ id: 'discounts', key: 'tabDiscounts', fallback: 'Discounts' },
+	{ id: 'placement', key: 'tabPlacement', fallback: 'Placement' },
 	{ id: 'design', key: 'tabDesign', fallback: 'Design' },
 ];
 
@@ -37,7 +45,9 @@ const placeholderImage =
 const enabledCount = computed( () => bundles.value.filter( ( bundle ) => bundle.enabled ).length );
 const hasProducts = computed( () => selectedProducts.value.length > 0 );
 const hasTiers = computed( () => form.discount_tiers.length > 0 );
-const canSave = computed( () => form.name.trim() !== '' && hasProducts.value && hasTiers.value && ! saving.value );
+// Recommended bundles have no fixed product list — the storefront fills
+// the offer from each viewed product's cross-sells.
+const canSave = computed( () => form.name.trim() !== '' && ( hasProducts.value || isRecommended.value ) && hasTiers.value && ! saving.value );
 const shortcode = computed( () => `[bundixo_bundle id="${ form.bundle_id }"]` );
 
 function defaultForm() {
@@ -64,8 +74,25 @@ function defaultForm() {
 		show_hint_text: true,
 		show_progress_text: true,
 		discount_tiers: [ { quantity: 2, discount: 10 } ],
+		placement: defaultPlacement(),
 	};
 }
+
+// New bundles opt into automatic placement with the compact FBT layout;
+// existing bundles keep their stored placement after upgrade.
+function defaultPlacement() {
+	return {
+		auto_display: true,
+		position: 'after_add_to_cart',
+		include_products: true,
+		extra_product_ids: [],
+		all_products: false,
+		product_source: 'bundle',
+		layout: 'compact',
+	};
+}
+
+const isRecommended = computed( () => form.placement.product_source === 'recommended' );
 
 async function loadBundles() {
 	loading.value = true;
@@ -96,6 +123,9 @@ function resetForm() {
 	selectedProducts.value = [];
 	searchQuery.value = '';
 	searchResults.value = [];
+	extraProducts.value = [];
+	extraSearchQuery.value = '';
+	extraSearchResults.value = [];
 }
 
 function newBundle() {
@@ -137,6 +167,7 @@ async function editBundle( bundle ) {
 			quantity: tier.quantity,
 			discount: tier.discount,
 		} ) ),
+		placement: { ...defaultPlacement(), ...( bundle.placement || {} ) },
 	} );
 
 	const ids = bundle.product_ids || [];
@@ -146,6 +177,18 @@ async function editBundle( bundle ) {
 			const products = await apiGet( `/products?ids=${ ids.join( ',' ) }` );
 			const byId = new Map( products.map( ( product ) => [ product.id, product ] ) );
 			selectedProducts.value = ids.map( ( id ) => byId.get( id ) ).filter( Boolean );
+		} catch ( error ) {
+			notifyError( error.message || t( 'loadError', 'Could not load data.' ) );
+		}
+	}
+
+	const extraIds = form.placement.extra_product_ids || [];
+
+	if ( extraIds.length ) {
+		try {
+			const products = await apiGet( `/products?ids=${ extraIds.join( ',' ) }` );
+			const byId = new Map( products.map( ( product ) => [ product.id, product ] ) );
+			extraProducts.value = extraIds.map( ( id ) => byId.get( id ) ).filter( Boolean );
 		} catch ( error ) {
 			notifyError( error.message || t( 'loadError', 'Could not load data.' ) );
 		}
@@ -177,6 +220,42 @@ async function runSearch() {
 	} finally {
 		searching.value = false;
 	}
+}
+
+function queueExtraSearch() {
+	clearTimeout( extraSearchTimer );
+
+	if ( extraSearchQuery.value.trim().length < 2 ) {
+		extraSearchResults.value = [];
+		extraSearching.value = false;
+		return;
+	}
+
+	extraSearching.value = true;
+	extraSearchTimer = setTimeout( runExtraSearch, 300 );
+}
+
+async function runExtraSearch() {
+	try {
+		extraSearchResults.value = await apiGet( `/products?search=${ encodeURIComponent( extraSearchQuery.value.trim() ) }` );
+	} catch ( error ) {
+		extraSearchResults.value = [];
+		notifyError( error.message || t( 'loadError', 'Could not load data.' ) );
+	} finally {
+		extraSearching.value = false;
+	}
+}
+
+function addExtraProduct( product ) {
+	if ( extraProducts.value.some( ( item ) => item.id === product.id ) ) {
+		return;
+	}
+
+	extraProducts.value.push( product );
+}
+
+function removeExtraProduct( productId ) {
+	extraProducts.value = extraProducts.value.filter( ( product ) => product.id !== productId );
 }
 
 function addProduct( product ) {
@@ -221,6 +300,10 @@ function buildPayload() {
 	return {
 		...form,
 		product_ids: selectedProducts.value.map( ( product ) => product.id ),
+		placement: {
+			...form.placement,
+			extra_product_ids: extraProducts.value.map( ( product ) => product.id ),
+		},
 	};
 }
 
@@ -277,6 +360,7 @@ async function quickToggleEnabled( bundle ) {
 		show_heading_text: !! bundle.show_heading_text,
 		show_hint_text: !! bundle.show_hint_text,
 		show_progress_text: !! bundle.show_progress_text,
+		placement: bundle.placement || {},
 	};
 
 	try {
@@ -546,6 +630,164 @@ onMounted( loadBundles );
 								+ {{ t( 'addTier', 'Add tier' ) }}
 							</button>
 						</div>
+					</section>
+
+					<!-- -------- Placement tab -------- -->
+					<section v-else-if="activeTab === 'placement'" class="bc-editor-section">
+						<div class="bc-switch-row">
+							<div>
+								<span class="bc-switch-row__label">{{ t( 'autoDisplay', 'Show automatically on product pages' ) }}</span>
+								<p class="bc-switch-row__hint">{{ t( 'autoDisplayHint', 'Insert this bundle on single product pages as a "frequently bought together" offer. The product being viewed is the anchor: pre-selected, added at full price, and never counting toward the discount tiers — only the extra products the customer picks unlock discounts.' ) }}</p>
+							</div>
+							<Switch v-model="form.placement.auto_display" :label="t( 'autoDisplay', 'Show automatically on product pages' )" />
+						</div>
+
+						<template v-if="form.placement.auto_display">
+							<div class="bc-design-card">
+								<div class="bc-design-card__head">
+									<span class="bc-design-card__label">{{ t( 'positionLabel', 'Position' ) }}</span>
+								</div>
+								<div class="bc-placement-positions">
+									<label
+										v-for="[value, labelKey, fallback] in [
+											[ 'after_add_to_cart', 'posAfterAddToCart', 'After Add to Cart button' ],
+											[ 'before_tabs', 'posBeforeTabs', 'Before product tabs' ],
+											[ 'after_related', 'posAfterRelated', 'After related products' ],
+										]"
+										:key="value"
+										class="bc-placement-position"
+										:class="{ 'bc-placement-position--active': form.placement.position === value }"
+									>
+										<input v-model="form.placement.position" type="radio" :value="value" />
+										{{ t( labelKey, fallback ) }}
+									</label>
+								</div>
+							</div>
+
+							<div class="bc-design-card">
+								<div class="bc-design-card__head">
+									<span class="bc-design-card__label">{{ t( 'sourceLabel', 'Products in the offer' ) }}</span>
+								</div>
+								<div class="bc-placement-positions">
+									<label class="bc-placement-position" :class="{ 'bc-placement-position--active': form.placement.product_source === 'bundle' }">
+										<input v-model="form.placement.product_source" type="radio" value="bundle" />
+										{{ t( 'sourceBundle', 'The bundle\'s own products' ) }}
+									</label>
+									<label class="bc-placement-position" :class="{ 'bc-placement-position--active': form.placement.product_source === 'recommended' }">
+										<input v-model="form.placement.product_source" type="radio" value="recommended" />
+										{{ t( 'sourceRecommended', 'Recommended for the viewed product' ) }}
+									</label>
+								</div>
+								<p v-if="isRecommended" class="bc-muted">
+									{{ t( 'sourceRecommendedHint', 'No fixed list: on every product page the offer fills automatically with that product\'s cross-sell products, falling back to upsells, then to same-category products. Setup: WooCommerce → edit product → Linked Products. The Products tab is ignored in this mode.' ) }}
+								</p>
+							</div>
+
+							<template v-if="! isRecommended">
+								<div class="bc-design-card">
+									<div class="bc-design-card__head">
+										<span class="bc-design-card__label">{{ t( 'whereLabel', 'Where should this offer appear?' ) }}</span>
+									</div>
+
+									<div class="bc-switch-row">
+										<div>
+											<span class="bc-switch-row__label">{{ t( 'showOnProducts', 'Follow the bundle\'s products' ) }}</span>
+											<p class="bc-switch-row__hint">{{ t( 'showOnProductsHint', 'The offer follows the Products tab: it appears on the page of every product in this bundle, and disappears from a page the moment you remove that product from the bundle.' ) }}</p>
+										</div>
+										<Switch v-model="form.placement.include_products" :label="t( 'showOnProducts', 'Follow the bundle\'s products' )" />
+									</div>
+
+									<div class="bc-switch-row">
+										<div>
+											<span class="bc-switch-row__label">{{ t( 'showEverywhere', 'Show on every product page' ) }}</span>
+											<p class="bc-switch-row__hint">{{ t( 'showEverywhereHint', 'A catch-all: the offer appears on all single product pages, regardless of the products in the bundle.' ) }}</p>
+										</div>
+										<Switch v-model="form.placement.all_products" :label="t( 'showEverywhere', 'Show on every product page' )" />
+									</div>
+								</div>
+
+								<div class="bc-field">
+									<label for="bc-extra-search">{{ t( 'extraProducts', 'Pin to additional product pages' ) }}</label>
+									<p class="bc-muted">{{ t( 'extraProductsHint', 'Show this offer on products that are not part of the bundle. Their pages display it with the viewed product as the anchor at full price.' ) }}</p>
+									<input
+										id="bc-extra-search"
+										v-model="extraSearchQuery"
+										type="search"
+										:placeholder="t( 'searchPlaceholder', 'Type at least 2 characters…' )"
+										@input="queueExtraSearch"
+									/>
+								</div>
+
+								<div v-if="extraSearching || extraSearchResults.length" class="bc-product-grid">
+									<p v-if="extraSearching" class="bc-muted">{{ t( 'searching', 'Searching…' ) }}</p>
+									<div
+										v-for="product in extraSearchResults"
+										:key="product.id"
+										class="bc-product-card"
+										:class="{ 'bc-product-card--selected': extraProducts.some( ( item ) => item.id === product.id ) }"
+									>
+										<img :src="product.image || placeholderImage" alt="" />
+										<div class="bc-product-card__body">
+											<span class="bc-product-card__name">{{ product.name }}</span>
+											<span class="bc-product-card__price" v-html="product.price_html" />
+										</div>
+										<button
+											type="button"
+											class="bc-product-card__add"
+											:disabled="extraProducts.some( ( item ) => item.id === product.id )"
+											@click="addExtraProduct( product )"
+										>
+											{{ extraProducts.some( ( item ) => item.id === product.id ) ? '✓' : '+' }}
+										</button>
+									</div>
+								</div>
+
+								<ul v-if="extraProducts.length" class="bc-selected-list">
+									<li v-for="product in extraProducts" :key="product.id" class="bc-selected-item">
+										<img :src="product.image || placeholderImage" alt="" class="bc-thumb" />
+										<span class="bc-selected-item__name">{{ product.name }}</span>
+										<span class="bc-selected-item__price" v-html="product.price_html" />
+										<button type="button" class="button-link bc-link-danger" @click="removeExtraProduct( product.id )">
+											{{ t( 'remove', 'Remove' ) }}
+										</button>
+									</li>
+								</ul>
+							</template>
+							<p v-else class="bc-muted">
+								{{ t( 'sourceRecommendedHint', 'No fixed list: on every product page the offer fills automatically with that product\'s cross-sell products, falling back to upsells, then to same-category products. Setup: WooCommerce → edit product → Linked Products. The Products tab is ignored in this mode.' ) }}
+							</p>
+
+							<div class="bc-design-card">
+								<div class="bc-design-card__head">
+									<span class="bc-design-card__label">{{ t( 'layoutLabel', 'Widget layout' ) }}</span>
+								</div>
+								<div class="bc-segmented bc-segmented--wide" role="radiogroup" :aria-label="t( 'layoutLabel', 'Widget layout' )">
+									<button
+										type="button"
+										:class="['bc-segmented__option', { 'bc-segmented__option--active': form.placement.layout === 'compact' }]"
+										@click="form.placement.layout = 'compact'"
+									>
+										{{ t( 'layoutCompact', 'Compact (frequently bought together)' ) }}
+									</button>
+									<button
+										type="button"
+										:class="['bc-segmented__option', { 'bc-segmented__option--active': form.placement.layout === 'full' }]"
+										@click="form.placement.layout = 'full'"
+									>
+										{{ t( 'layoutFull', 'Full builder' ) }}
+									</button>
+									<span
+										class="bc-segmented__thumb"
+										:style="{ transform: form.placement.layout === 'full' ? 'translateX(100%)' : 'translateX(0)' }"
+										aria-hidden="true"
+									/>
+								</div>
+							</div>
+
+							<p class="bc-muted">{{ t( 'anyRuleNote', 'The offer appears wherever any of the rules above matches. Tailored rules win over "every product page" when several bundles match.' ) }}</p>
+						</template>
+
+						<p class="bc-muted">{{ t( 'manualNote', 'The shortcode and block keep working everywhere, regardless of these automatic rules.' ) }}</p>
 					</section>
 
 					<!-- -------- Design tab -------- -->

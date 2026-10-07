@@ -144,12 +144,13 @@ class Install {
 			show_bundle_title tinyint(1) DEFAULT 1,
 			show_bundle_description tinyint(1) DEFAULT 1,
 			show_heading_text tinyint(1) DEFAULT 1,
-			show_hint_text tinyint(1) DEFAULT 1,
-			show_progress_text tinyint(1) DEFAULT 1,
-			created_at datetime DEFAULT CURRENT_TIMESTAMP,
-			updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-			primary key (id)
-		)";
+				show_hint_text tinyint(1) DEFAULT 1,
+				show_progress_text tinyint(1) DEFAULT 1,
+				placement longtext,
+				created_at datetime DEFAULT CURRENT_TIMESTAMP,
+				updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+				primary key (id)
+			)";
 	}
 
 	/**

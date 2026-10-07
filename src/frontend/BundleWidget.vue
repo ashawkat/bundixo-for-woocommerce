@@ -9,6 +9,8 @@ const props = defineProps( {
 
 const bundle = props.payload.bundle;
 const products = props.payload.products || [];
+const contextProductId = props.payload.context_product_id || 0;
+const isCompact = bundle.layout === 'compact';
 
 const quote = ref( null );
 const quoting = ref( false );
@@ -21,9 +23,11 @@ let toastTimer = null;
 const selection = reactive( {} );
 
 products.forEach( ( product ) => {
+	const preselect = isCompact && ( product.is_context || product.id === contextProductId );
+
 	selection[ product.id ] = {
 		variationId: product.is_variable ? ( product.variations[ 0 ] ? product.variations[ 0 ].id : 0 ) : 0,
-		qty: bundle.use_quantity ? 1 : 0,
+		qty: preselect || bundle.use_quantity ? 1 : 0,
 		variationPrice: product.is_variable && product.variations[ 0 ] ? product.variations[ 0 ].price : 0,
 	};
 } );
@@ -92,6 +96,9 @@ const items = computed( () => {
 			product_id: product.id,
 			variation_id: state.variationId,
 			quantity: state.qty,
+			// The injected "This item" product is added at full price and
+			// never counts toward the discount tiers (server-enforced).
+			no_discount: !! product.is_context,
 		} );
 	} );
 
@@ -126,6 +133,23 @@ const progressPercent = computed( () => {
 
 	return Math.min( 100, Math.round( ( ( quote.value ? quote.value.item_count : 0 ) / nextTier.value.quantity ) * 100 ) );
 } );
+
+// Optimistic totals for the compact footer while a quote is in flight;
+// the server quote remains authoritative for pricing and cart adds.
+const localTotal = computed( () =>
+	products.reduce( ( sum, product ) => {
+		const state = selection[ product.id ];
+		return sum + ( state && state.qty > 0 ? productPrice( product ) * state.qty : 0 );
+	}, 0 )
+);
+
+const compactTotal = computed( () => ( quote.value ? quote.value.total : localTotal.value ) );
+
+const compactSavings = computed( () => ( quote.value && quote.value.discount_amount > 0 ? quote.value.discount_amount : 0 ) );
+
+const compactButtonLabel = computed( () =>
+	isCompact ? ( bundle.button_text || t( 'addSelected', 'Add Selected to Cart' ) ) : ( bundle.button_text || t( 'addToCart', 'Add to Cart' ) )
+);
 
 watch(
 	items,
@@ -201,6 +225,12 @@ async function addToCart() {
 		refreshClassicCart( result );
 		pokeBlocksCart();
 		tryOpenSidecart();
+
+		if ( result.failed && result.failed.length ) {
+			showToast( 'warn', t( 'someNotAdded', 'Some items could not be added to the cart.' ) );
+			return;
+		}
+
 		showToast( 'success', t( 'added', 'Added to cart!' ) );
 	} catch {
 		showToast( 'error', t( 'addError', 'Could not add the bundle to your cart.' ) );
@@ -307,7 +337,121 @@ function variationLabel( variation ) {
 			</p>
 		</header>
 
-		<div class="bcw-layout">
+		<!-- ===== Compact "frequently bought together" layout ===== -->
+		<section v-if="isCompact" class="bcw-fbt">
+			<div v-if="bundle.show_heading_text && bundle.heading_text" class="bcw-fbt__heading">
+				{{ bundle.heading_text }}
+			</div>
+			<p v-if="bundle.show_hint_text && bundle.hint_text" class="bcw-fbt__hint">
+				{{ bundle.hint_text }}
+			</p>
+
+			<ul class="bcw-fbt__list">
+				<li
+					v-for="product in products"
+					:key="product.id"
+					:class="['bcw-fbt__item', { 'bcw-fbt__item--checked': isChecked( product ) }]"
+				>
+					<label class="bcw-fbt__check">
+						<input
+							type="checkbox"
+							:checked="!! selection[ product.id ].qty"
+							:aria-label="product.name"
+							@change="toggleProduct( product )"
+						/>
+					</label>
+
+					<a v-if="product.permalink" :href="product.permalink" class="bcw-fbt__image">
+						<img :src="product.image" :alt="product.name" loading="lazy" />
+					</a>
+					<div v-else class="bcw-fbt__image"><img :src="product.image" :alt="product.name" loading="lazy" /></div>
+
+					<div class="bcw-fbt__body">
+						<span v-if="product.is_context || product.id === contextProductId" class="bcw-fbt__badge">
+							{{ t( 'thisItem', 'This item' ) }}
+						</span>
+						<a v-if="product.permalink" :href="product.permalink" class="bcw-fbt__name">{{ product.name }}</a>
+						<span v-else class="bcw-fbt__name">{{ product.name }}</span>
+
+						<select
+							v-if="product.is_variable && product.variations.length"
+							v-model="selection[ product.id ].variationId"
+							class="bcw-variation"
+							:aria-label="t( 'selectVariation', 'Select variation' )"
+							@change="onVariationChange( product )"
+						>
+							<option v-for="variation in product.variations" :key="variation.id" :value="variation.id">
+								{{ variationLabel( variation ) || ( '#' + variation.id ) }}
+								{{ variation.in_stock ? '' : ` (${ t( 'outOfStock', 'Out of stock' ) })` }}
+							</option>
+						</select>
+					</div>
+
+					<div class="bcw-fbt__price">
+						<span v-if="! product.is_variable" v-html="product.price_html" />
+						<template v-else-if="selection[ product.id ] && selection[ product.id ].variationPrice">
+							{{ formatPrice( selection[ product.id ].variationPrice ) }}
+						</template>
+						<template v-else-if="product.price_max && product.price_max !== product.price_min">
+							{{ formatPrice( product.price_min ) }} – {{ formatPrice( product.price_max ) }}
+						</template>
+					</div>
+				</li>
+			</ul>
+
+			<ul v-if="bundle.discount_tiers && bundle.discount_tiers.length" class="bcw-fbt__tiers">
+				<li
+					v-for="tier in bundle.discount_tiers"
+					:key="tier.quantity"
+					:class="[
+						'bcw-fbt__tier',
+						{
+							'bcw-fbt__tier--active': currentTier && currentTier.quantity === tier.quantity,
+							'bcw-fbt__tier--unlocked': quote && quote.item_count >= tier.quantity,
+						},
+					]"
+				>
+					{{ tier.quantity }}+ · {{ tier.discount }}% off
+				</li>
+			</ul>
+
+			<div v-if="nextTier" class="bcw-fbt__progress">
+				<div class="bcw-progress__bar">
+					<div class="bcw-progress__fill" :style="{ width: progressPercent + '%' }" />
+				</div>
+				<p class="bcw-fbt__unlock">
+					{{
+						t( 'unlockMore', 'Add %1$s more item(s) to unlock %2$s off' )
+							.replace( '%1$s', nextTier.quantity - ( quote ? quote.item_count : 0 ) )
+							.replace( '%2$s', nextTier.discount + '%' )
+					}}
+				</p>
+			</div>
+
+			<div class="bcw-fbt__footer">
+				<div class="bcw-fbt__totals">
+					<span class="bcw-fbt__total-label">{{ t( 'bundlePrice', 'Bundle price' ) }}</span>
+					<strong class="bcw-fbt__total">{{ formatPrice( compactTotal ) }}</strong>
+					<span v-if="compactSavings > 0" class="bcw-fbt__savings">
+						{{ t( 'youSave', 'You save' ) }} {{ formatPrice( compactSavings ) }}
+					</span>
+				</div>
+				<button type="button" class="bcw-add" :disabled="! canAdd" @click="addToCart">
+					{{ adding ? t( 'adding', 'Adding…' ) : compactButtonLabel }}
+				</button>
+			</div>
+
+			<transition name="bcw-toast">
+				<div v-if="toast" :class="['bcw-toast', `bcw-toast--${ toast.type }`]">
+					<span>{{ toast.message }}</span>
+					<a v-if="toast.type === 'success' && config.cartUrl" :href="config.cartUrl">
+						{{ t( 'viewCart', 'View Cart' ) }}
+					</a>
+				</div>
+			</transition>
+		</section>
+
+		<div v-else class="bcw-layout">
 			<div class="bcw-products-area">
 				<div v-if="bundle.show_heading_text && bundle.heading_text" class="bcw-heading">
 					{{ bundle.heading_text }}
@@ -455,7 +599,7 @@ function variationLabel( variation ) {
 			</aside>
 		</div>
 
-		<div class="bcw-sticky">
+		<div v-if="! isCompact" class="bcw-sticky">
 			<div class="bcw-sticky__info">
 				<template v-if="nextTier">
 					<span class="bcw-sticky__badge">{{ nextTier.discount }}% off</span>

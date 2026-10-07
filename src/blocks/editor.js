@@ -88,7 +88,7 @@ function BundlesTable( { onPick } ) {
 
 function EditBlock( props ) {
 	const { attributes, setAttributes } = props;
-	const { bundleId } = attributes;
+	const { bundleId, layout } = attributes;
 	const blockProps = useBlockProps();
 
 	function renderInspector() {
@@ -99,6 +99,18 @@ function EditBlock( props ) {
 				'div',
 				{ style: { padding: '16px' } },
 				h( 'h3', { style: { margin: '0 0 12px' } }, __( 'Bundixo', 'bundixo-for-woocommerce' ) ),
+				h( SelectControl, {
+					value: layout || '',
+					label: __( 'Widget layout', 'bundixo-for-woocommerce' ),
+					options: [
+						{ value: '', label: __( 'Bundle setting (default)', 'bundixo-for-woocommerce' ) },
+						{ value: 'full', label: __( 'Full builder', 'bundixo-for-woocommerce' ) },
+						{ value: 'compact', label: __( 'Compact list (frequently bought together)', 'bundixo-for-woocommerce' ) },
+					],
+					onChange( next ) {
+						setAttributes( { layout: next || '' } );
+					},
+				} ),
 				h( 'p', { style: { margin: '0 0 8px', fontSize: '12px', color: '#757575' } },
 					__( 'Manage bundles in Dashboard → Bundixo.', 'bundixo-for-woocommerce' ) )
 			)
@@ -131,7 +143,7 @@ function EditBlock( props ) {
 			{},
 			h( ServerSideRender, {
 				block: 'bundixo/bundle',
-				attributes: { bundleId },
+				attributes: { bundleId, layout: layout || '' },
 			} ),
 			h(
 				'div',

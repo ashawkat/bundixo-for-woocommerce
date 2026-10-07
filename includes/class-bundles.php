@@ -67,6 +67,39 @@ class Bundles {
 			'show_heading_text'      => 1,
 			'show_hint_text'         => 1,
 			'show_progress_text'     => 1,
+			'placement'              => self::placement_defaults(),
+		];
+	}
+
+	/**
+	 * Default automatic-placement configuration. Auto display defaults to
+	 * off so existing bundles keep rendering exactly where they were
+	 * placed manually after the upgrade.
+	 *
+	 * @return array
+	 */
+	public static function placement_defaults() {
+		return [
+			'auto_display'     => 0,
+			'position'         => 'after_add_to_cart',
+			'include_products' => 1,
+			'extra_product_ids' => [],
+			'all_products'     => 0,
+			'product_source'   => 'bundle',
+			'layout'           => 'full',
+		];
+	}
+
+	/**
+	 * Valid auto-placement positions and the WooCommerce hooks they map to.
+	 *
+	 * @return array<string, array{hook: string, priority: int}>
+	 */
+	public static function placement_positions() {
+		return [
+			'after_add_to_cart' => [ 'hook' => 'woocommerce_after_add_to_cart_form', 'priority' => 10 ],
+			'before_tabs'       => [ 'hook' => 'woocommerce_after_single_product_summary', 'priority' => 5 ],
+			'after_related'     => [ 'hook' => 'woocommerce_after_single_product_summary', 'priority' => 25 ],
 		];
 	}
 
@@ -120,6 +153,7 @@ class Bundles {
 			'show_heading_text'       => self::to_bool_int( $data['show_heading_text'] ?? 1 ),
 			'show_hint_text'          => self::to_bool_int( $data['show_hint_text'] ?? 1 ),
 			'show_progress_text'      => self::to_bool_int( $data['show_progress_text'] ?? 1 ),
+			'placement'               => (string) wp_json_encode( self::sanitize_placement( $data['placement'] ?? null ) ),
 		];
 
 		$formats   = self::record_formats();
@@ -366,6 +400,7 @@ class Bundles {
 			'show_heading_text'       => (int) ( $row->show_heading_text ?? 1 ),
 			'show_hint_text'          => (int) ( $row->show_hint_text ?? 1 ),
 			'show_progress_text'      => (int) ( $row->show_progress_text ?? 1 ),
+			'placement'               => self::sanitize_placement( json_decode( (string) ( $row->placement ?? '' ), true ) ),
 			'created_at'              => (string) $row->created_at,
 			'updated_at'              => (string) $row->updated_at,
 		];
@@ -448,6 +483,41 @@ class Bundles {
 	}
 
 	/**
+	 * Normalizes the automatic-placement configuration. Accepts an array
+	 * (REST), a JSON string (legacy clients), or null (defaults).
+	 *
+	 * @param mixed $raw Placement config.
+	 * @return array
+	 */
+	public static function sanitize_placement( $raw ) {
+		$defaults = self::placement_defaults();
+
+		if ( is_string( $raw ) && '' !== $raw ) {
+			$raw = json_decode( wp_unslash( $raw ), true );
+		}
+
+		if ( ! is_array( $raw ) ) {
+			return $defaults;
+		}
+
+		$positions = self::placement_positions();
+		$position  = isset( $raw['position'] ) ? sanitize_key( $raw['position'] ) : $defaults['position'];
+
+		$layouts = [ 'full', 'compact' ];
+		$sources = [ 'bundle', 'recommended' ];
+
+		return [
+			'auto_display'      => self::to_bool_int( $raw['auto_display'] ?? $defaults['auto_display'] ),
+			'position'          => isset( $positions[ $position ] ) ? $position : $defaults['position'],
+			'include_products'  => self::to_bool_int( $raw['include_products'] ?? $defaults['include_products'] ),
+			'extra_product_ids' => self::sanitize_product_ids( $raw['extra_product_ids'] ?? [] ),
+			'all_products'      => self::to_bool_int( $raw['all_products'] ?? $defaults['all_products'] ),
+			'product_source'    => in_array( isset( $raw['product_source'] ) ? $raw['product_source'] : '', $sources, true ) ? $raw['product_source'] : $defaults['product_source'],
+			'layout'            => in_array( isset( $raw['layout'] ) ? $raw['layout'] : '', $layouts, true ) ? $raw['layout'] : $defaults['layout'],
+		];
+	}
+
+	/**
 	 * Validates hex colors, falling back to a default when invalid.
 	 *
 	 * @param string $color    Raw color value.
@@ -509,6 +579,7 @@ class Bundles {
 			'%d', // show_heading_text.
 			'%d', // show_hint_text.
 			'%d', // show_progress_text.
+			'%s', // placement.
 		];
 	}
 

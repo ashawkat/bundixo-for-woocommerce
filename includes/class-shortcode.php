@@ -33,7 +33,10 @@ class Shortcode {
 	 */
 	public function render( $atts ) {
 		$atts = shortcode_atts(
-			[ 'id' => 0 ],
+			[
+				'id'    => 0,
+				'style' => '', // 'full' (builder) or 'compact' (FBT list); empty follows the bundle setting.
+			],
 			$atts,
 			'bundixo_bundle'
 		);
@@ -48,6 +51,13 @@ class Shortcode {
 			return '';
 		}
 
-		return Frontend::render_bundle( $bundle );
+		$args   = [];
+		$style  = strtolower( trim( $atts['style'] ) );
+
+		if ( in_array( $style, [ 'full', 'compact' ], true ) ) {
+			$args['layout'] = $style;
+		}
+
+		return Frontend::render_bundle( $bundle, $args );
 	}
 }
