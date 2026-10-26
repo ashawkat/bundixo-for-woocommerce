@@ -27,7 +27,7 @@ products.forEach( ( product ) => {
 
 	selection[ product.id ] = {
 		variationId: product.is_variable ? ( product.variations[ 0 ] ? product.variations[ 0 ].id : 0 ) : 0,
-		qty: preselect || bundle.use_quantity ? 1 : 0,
+		qty: preselect ? 1 : 0,
 		variationPrice: product.is_variable && product.variations[ 0 ] ? product.variations[ 0 ].price : 0,
 	};
 } );
