@@ -4,7 +4,7 @@ Tags: woocommerce, bundle, product bundles, discount, quantity discount
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -98,6 +98,12 @@ The files in `assets/build/` are generated with Vite from human-readable Vue 3 s
 
 == Changelog ==
 
+= 1.1.1 =
+* New: review nudge — a dismissable admin prompt (plus a quiet ★ footer line on Bundixo screens and a "Rate ★" plugin action link) asking for a WordPress.org review. It appears after 7 days of use, or right after the first order with a bundle discount. "Maybe later" reschedules twice; "No thanks" stops the asks for good. No data ever leaves your store.
+* Fixed: the full bundle builder started with every product preselected at quantity 1 in quantity mode. Products now begin unselected — only the compact layout's anchor product is preselected.
+* Fixed: the review prompt's "Rate ★" action link displayed the raw HTML entity instead of a star.
+* Tested up to WordPress 7.1 and WooCommerce 11.2.
+
 = 1.1.0 =
 * New: frequently bought together — automatic bundle placement on single product pages (after the Add to Cart button, before the tabs, or after related products).
 * New "Placement" tab per bundle: auto-display toggle, position, own-product pages, extra product pages, and widget layout.
@@ -128,6 +134,9 @@ The files in `assets/build/` are generated with Vite from human-readable Vue 3 s
 * Initial release: bundle builder with tiered discounts, storefront widget, analytics dashboard, diagnostics, and REST API back end.
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+Fixes bundle-builder preselection in quantity mode and adds a polite WordPress.org review prompt. No settings change.
 
 = 1.1.0 =
 New: show any bundle automatically on product pages as a "frequently bought together" offer. Existing bundles are unaffected until you enable it.

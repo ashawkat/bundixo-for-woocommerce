@@ -256,7 +256,7 @@ class Review_Nudge {
 		$links[] = sprintf(
 			'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
 			esc_url( $this->review_url() ),
-			esc_html( $this->t( 'Rate &#9733;' ) )
+			esc_html( $this->t( 'Rate ★' ) )
 		);
 
 		return $links;
