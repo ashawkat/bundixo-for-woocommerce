@@ -59,4 +59,7 @@ delete_option( 'bundixo_settings' );
 delete_option( 'bundixo_db_version' );
 delete_option( 'bundixo_legacy_migrated' );
 
+// Review nudge state (Betatech\Review_Nudge library; keyed by plugin slug).
+delete_option( 'bundixo-for-woocommerce_review_nudge' );
+
 wp_cache_flush();

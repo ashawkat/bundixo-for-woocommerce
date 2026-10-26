@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- New: review nudge — a dismissable admin prompt (plus a quiet ★ footer line on Bundixo screens and a "Rate ★" plugin action link) asking for a WordPress.org review. It becomes eligible after 7 days, or immediately when the first order with a bundle coupon converts. "Maybe later" reschedules twice before the plugin stops asking; "No thanks" stops asking for good. The reusable library lives in `includes/lib/review-nudge/` so it can be vendored into other plugins.
+- Fixed: the full bundle builder started with every product preselected at quantity 1 in quantity mode. Products now begin unselected — only the compact layout's anchor product is preselected.
+
 ## 1.1.0
 
 - Frequently bought together: display any bundle automatically on single product pages, right after the Add to Cart button (or before the tabs / after related products).

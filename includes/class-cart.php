@@ -119,6 +119,34 @@ class Cart {
 		// bundle items, before any notice can render.
 		add_action( 'template_redirect', [ $this, 'cleanup_invalid_bundle_coupons' ], 5 );
 		add_action( 'wp_loaded', [ $this, 'cleanup_invalid_bundle_coupons' ], 5 );
+
+		// Signal real-world usage (review nudge) when a bundle order converts.
+		add_action( 'woocommerce_thankyou', [ $this, 'detect_bundle_order' ], 10 );
+		add_action( 'woocommerce_order_status_processing', [ $this, 'detect_bundle_order' ], 10 );
+		add_action( 'woocommerce_order_status_completed', [ $this, 'detect_bundle_order' ], 10 );
+	}
+
+	/**
+	 * Fires bundixo_bundle_order_success when an order carries a Bundixo
+	 * bundle coupon. Listened to by the review-nudge library to time its
+	 * ask after real usage; harmless when that library is not vendored.
+	 *
+	 * @param int $order_id Order ID.
+	 * @return void
+	 */
+	public function detect_bundle_order( $order_id ) {
+		$order = wc_get_order( $order_id );
+
+		if ( ! $order ) {
+			return;
+		}
+
+		foreach ( $order->get_coupon_codes() as $code ) {
+			if ( 0 === strpos( (string) $code, self::COUPON_PREFIX ) ) {
+				do_action( 'bundixo_bundle_order_success', $order_id );
+				return;
+			}
+		}
 	}
 
 	// ------------------------------------------------------------------

@@ -68,6 +68,44 @@ class Plugin {
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_frontend_assets' ] );
 		add_action( 'bundixo_force_frontend_assets', [ $this, 'enqueue_frontend_assets_now' ] );
 		add_filter( 'plugin_action_links_' . BUNDIXO_PLUGIN_BASENAME, [ $this, 'plugin_action_links' ] );
+
+		$this->boot_review_nudge();
+	}
+
+	/**
+	 * Boots the shared review-nudge library (includes/lib/review-nudge/).
+	 *
+	 * The prompt becomes eligible after 7 days, or immediately when the
+	 * first order with a bundle coupon converts (Cart fires
+	 * bundixo_bundle_order_success). Instantiated on every request because
+	 * the success hook fires on the storefront during checkout; the
+	 * library's own display hooks are admin-only.
+	 *
+	 * @return void
+	 */
+	private function boot_review_nudge() {
+		$library = BUNDIXO_PLUGIN_DIR . 'includes/lib/review-nudge/review-nudge.php';
+
+		if ( ! is_readable( $library ) ) {
+			return;
+		}
+
+		require_once $library;
+
+		new \Betatech\Review_Nudge(
+			[
+				'slug'           => 'bundixo-for-woocommerce',
+				'name'           => 'Bundixo for WooCommerce',
+				'textdomain'     => 'bundixo-for-woocommerce',
+				'icon'           => BUNDIXO_PLUGIN_URL . 'assets/img/bundixo-icon.svg',
+				'basename'       => BUNDIXO_PLUGIN_BASENAME,
+				'delay_days'     => 7,
+				'later_days'     => 14,
+				'max_reminders'  => 2,
+				'success_hook'   => 'bundixo_bundle_order_success',
+				'footer_screens' => [ 'bundixo' ],
+			]
+		);
 	}
 
 	/**
